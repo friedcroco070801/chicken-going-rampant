@@ -6,7 +6,6 @@ module sprite public
 class Sprite: Node
     image: ImageHandle
     width, height: float = 0.0f
-    tint: uint = 0xFFFFFFFF
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
 
     def Sprite(filename: string): void
@@ -21,25 +20,78 @@ class Sprite: Node
         height = float(_rect.w)
         rect = _rect
 
-    def setSize(_width, _height: float): void
-        width = _width
-        height = _height
+    def setScale(_scaleX, _scaleY: float): void
+        scaleX = _scaleX
+        scaleY = _scaleY
     
     def setColor(_tint: uint): void
-        tint = _tint
+        let t = uint(256 * 256 * 256)
+        tint = (tint / t) * t + _tint % t
 
     def setOpacity(opacity: float): void
         let t = uint(256 * 256 * 256)
         tint = tint % t + uint(opacity * 256.0f) * t
 
     def override draw(): void
-        image |> draw_image_region(x - anchorX * width, y - anchorY * height, rect, tint, float2(width, height))
+        if !isAnimated
+            image |> draw_image_region(x - anchorX * width * scaleX, y - anchorY * height * scaleY, rect, tint, float2(width * scaleX, height * scaleY))
 
-    def override update(dt: float): void
-        var t: int
+        for action in actionLists
+            action->draw(self)
+
+class AnimFrame
+    image: ImageHandle
+    width, height: float = 0.0f
+    rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
+    interval: float = 0.0f
+
+    def AnimFrame(filename: string; _interval: float): void
+        image <- create_managed_image(filename)
+        width = float(image.width)
+        height = float(image.height)
+        rect = float4(0.0f, 0.0f, width, height)
+        interval = _interval
+
+    def AnimFrame(filename: string; _interval: float; _rect: float4): void
+        image <- create_managed_image(filename)
+        width = float(_rect.z)
+        height = float(_rect.w)
+        rect = _rect
+        interval = _interval
+
+    def draw(node: Node): void
+        image |> draw_image_region(node.x - node.anchorX * width * node.scaleX, node.y - node.anchorY * height * node.scaleY, rect, node.tint, float2(width * node.scaleX, height * node.scaleY))
 
 class Animmation: Action
-    anims: array<ImageHandle>
+    anims: array<AnimFrame?>
+    index: int = 0
+    timer: float = 0.0f
 
-    def override perform(dt: float): void
-        var t: int
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled
+            if index >= anims |> length()
+                isDisabled = true
+            else
+                node.isAnimated = true
+                timer = timer + dt
+                while timer >= anims[index].interval
+                    timer = timer - anims[index].interval
+                    index = index + 1
+                    if index >= anims |> length()
+                        isDisabled = true
+                        break
+
+    def override draw(node: Node): void
+        if !isDisabled
+            if index >= anims |> length()
+                isDisabled = true
+            else
+                anims[index]->draw(node)
+
+    def override reset(): void
+        index = 0
+        timer = 0.0f
+        isDisabled = false
+
+    def addFrame(frame: AnimFrame?): void
+        anims |> push(frame)
