@@ -3,6 +3,7 @@ module node public
 
 class Node
     x, y: float = 0.0f
+    width, height: float = 0.0f
     anchorX, anchorY: float = 0.0f
     isAnimated: bool = false
     tint: uint = 0xFFFFFFFF
@@ -54,8 +55,6 @@ class Node
         isRemoved = true
 
 class Rect : Node
-    width, height: int = 0
-
     def override draw(): void
         pass
 
@@ -143,7 +142,7 @@ class JumpBy: Action
             if timer >= interval
                 isDisabled = true
                 node.x = node.x - d.x + delta.x
-                node.y = node.y - d.y + delta.y
+                node.y = node.y - d.y - h + delta.y
             else
                 node.x = node.x - d.x
                 node.y = node.y - d.y

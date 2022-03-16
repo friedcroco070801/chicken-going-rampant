@@ -5,7 +5,6 @@ module sprite public
 
 class Sprite: Node
     image: ImageHandle
-    width, height: float = 0.0f
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
 
     def Sprite(filename: string): void
