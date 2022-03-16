@@ -20,18 +20,6 @@ class Sprite: Node
         height = float(_rect.w)
         rect = _rect
 
-    def setScale(_scaleX, _scaleY: float): void
-        scaleX = _scaleX
-        scaleY = _scaleY
-    
-    def setColor(_tint: uint): void
-        let t = uint(256 * 256 * 256)
-        tint = (tint / t) * t + _tint % t
-
-    def setOpacity(opacity: float): void
-        let t = uint(256 * 256 * 256)
-        tint = tint % t + uint(opacity * 256.0f) * t
-
     def override draw(): void
         if !isAnimated
             image |> draw_image_region(x - anchorX * width * scaleX, y - anchorY * height * scaleY, rect, tint, float2(width * scaleX, height * scaleY))
@@ -79,6 +67,7 @@ class Animmation: Action
                     index = index + 1
                     if index >= anims |> length()
                         isDisabled = true
+                        node.isAnimated = false
                         break
 
     def override draw(node: Node): void
