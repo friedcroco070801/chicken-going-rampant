@@ -32,10 +32,10 @@ class ClickOn: Event
         if node.isRemoved
             isRemoved = true
             return
-        var left: float = node.x - node.anchorX * node.width
-        var right: float = node.x + (1.0f - node.anchorX) * node.width
-        var upper: float = node.y - node.anchorY * node.height
-        var lower: float = node.y + (1.0f - node.anchorY) * node.height
+        var left: float = node.x - node.anchorX * node.width * node.scaleX
+        var right: float = node.x + (1.0f - node.anchorX) * node.width * node.scaleX
+        var upper: float = node.y - node.anchorY * node.height * node.scaleY
+        var lower: float = node.y + (1.0f - node.anchorY) * node.height * node.scaleY
         var pos: float2 = get_mouse_position()
         if pos.x >= left && pos.x <= right && pos.y >= upper && pos.y <= lower
             if get_mouse_button(MB_LEFT) && onMousePress != null
