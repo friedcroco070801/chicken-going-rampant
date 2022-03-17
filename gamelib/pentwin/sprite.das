@@ -54,6 +54,9 @@ class Animmation: Action
     index: int = 0
     timer: float = 0.0f
 
+    def override isAnimation(): bool
+        return true
+
     def override perform(var node: Node; dt: float): void
         if !isDisabled
             if index >= anims |> length()

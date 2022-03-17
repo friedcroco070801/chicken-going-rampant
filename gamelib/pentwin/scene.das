@@ -86,3 +86,9 @@ class Scene
 
     def addEvent(event: Event?): void
         events |> push(event)
+
+    def removeAllEvents(): void
+        var i: int = 0
+        while i < events |> length()
+            events[i].isRemoved = true
+            i++

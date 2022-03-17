@@ -54,6 +54,15 @@ class Node
     def removeFromScene(): void
         isRemoved = true
 
+    def removeAllAnimations(): void
+        var i: int = 0
+        while i < actionLists |> length()
+            if actionLists[i]->isAnimation()
+                actionLists |> erase(i)
+                i--
+            i++
+        isAnimated = false
+
 class Rect : Node
     def override draw(): void
         pass
@@ -72,6 +81,9 @@ class Action
 
     def setDisable(): void
         isDisabled = true
+
+    def isAnimation(): bool
+        return false
 
 class RepeatForever: Action
     action: Action?
