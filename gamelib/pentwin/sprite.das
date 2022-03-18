@@ -49,7 +49,7 @@ class AnimFrame
     def draw(node: Node): void
         image |> draw_image_region(node.x - node.anchorX * width * node.scaleX, node.y - node.anchorY * height * node.scaleY, rect, node.tint, float2(width * node.scaleX, height * node.scaleY))
 
-class Animmation: Action
+class Animation: Action
     anims: array<AnimFrame?>
     index: int = 0
     timer: float = 0.0f

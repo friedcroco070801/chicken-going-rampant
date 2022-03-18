@@ -28,6 +28,14 @@ class Node
         for action in actionLists
             action->perform(self, dt)
 
+        // Remove disabled actions
+        i = 0
+        while i < actionLists |> length()
+            if actionLists[i].isDisabled
+                actionLists |> erase(i)
+                i--
+            i++
+
     def setPosition(_x, _y: float): void
         x = _x
         y = _y
@@ -139,6 +147,38 @@ class MoveBy: Action
                 d = timer / interval * delta
                 node.x = node.x + d.x
                 node.y = node.y + d.y
+
+    def override draw(node: Node): void
+        pass
+
+    def override reset(): void
+        d = float2(0.0f, 0.0f)
+        timer = 0.0f
+        isDisabled = false
+
+class MoveAnchorBy: Action
+    timer: float = 0.0f
+    interval: float = 0.0f
+    delta: float2 = float2(0.0f, 0.0f)
+    d: float2 = float2(0.0f, 0.0f)
+
+    def MoveAnchorBy(_delta: float2; _interval: float)
+        delta = _delta
+        interval = _interval
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            timer = timer + dt
+            if timer >= interval
+                isDisabled = true
+                node.anchorX = node.anchorX - d.x + delta.x
+                node.anchorY = node.anchorY - d.y + delta.y
+            else
+                node.anchorX = node.anchorX - d.x
+                node.anchorY = node.anchorY - d.y
+                d = timer / interval * delta
+                node.anchorX = node.anchorX + d.x
+                node.anchorY = node.anchorY + d.y
 
     def override draw(node: Node): void
         pass

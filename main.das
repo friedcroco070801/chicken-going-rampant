@@ -1,14 +1,13 @@
 require daslib/media
-require gamelib/pentwin/scene
+require gamelib/level
 require gamelib/pentwin/application
 
 [export]
 def initialize()
     set_window_title("Chicken Going Rampant")
     set_resolution(1280, 720)
-    enable_alpha_blend()
 
-    getApplication() = new Application("menu", new Scene())
+    getApplication() = new Application("menu", new LevelScene())
 
 [export]
 def act(dt: float)
@@ -16,4 +15,5 @@ def act(dt: float)
 
 [export]
 def draw()
+    enable_alpha_blend()
     getApplication()->draw()

@@ -107,3 +107,15 @@ class Scene
         while i < events |> length()
             events[i].isPaused = false
             i++
+
+    def pauseAllActions(): void
+        var i: int = 0
+        while i < children |> length()
+            children[i]->pauseAllActions()
+            i++
+
+    def resumeAllActions(): void
+        var i: int = 0
+        while i < children |> length()
+            children[i]->resumeAllActions()
+            i++
