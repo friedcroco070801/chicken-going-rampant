@@ -58,7 +58,7 @@ class Animmation: Action
         return true
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             if index >= anims |> length()
                 isDisabled = true
             else

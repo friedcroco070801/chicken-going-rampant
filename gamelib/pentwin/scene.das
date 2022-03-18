@@ -4,6 +4,7 @@ module scene public
 
 class Event
     isRemoved: bool = false
+    isPaused: bool = false
 
     def abstract update(dt: float): void
 
@@ -31,6 +32,8 @@ class ClickOn: Event
     def override update(dt: float): void
         if node.isRemoved
             isRemoved = true
+            return
+        if isPaused
             return
         var left: float = node.x - node.anchorX * node.width * node.scaleX
         var right: float = node.x + (1.0f - node.anchorX) * node.width * node.scaleX
@@ -91,4 +94,16 @@ class Scene
         var i: int = 0
         while i < events |> length()
             events[i].isRemoved = true
+            i++
+
+    def pauseAllEvents(): void
+        var i: int = 0
+        while i < events |> length()
+            events[i].isPaused = true
+            i++
+
+    def resumeAllEvents(): void
+        var i: int = 0
+        while i < events |> length()
+            events[i].isPaused = false
             i++

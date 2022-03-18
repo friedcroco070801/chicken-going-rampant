@@ -63,7 +63,19 @@ class Node
             i++
         isAnimated = false
 
-class Rect : Node
+    def pauseAllActions(): void
+        var i: int = 0
+        while i < actionLists |> length()
+            actionLists[i].isPaused = true
+            i++
+
+    def resumeAllActions(): void
+        var i: int = 0
+        while i < actionLists |> length()
+            actionLists[i].isPaused = false
+            i++
+
+class Rect: Node
     def override draw(): void
         pass
 
@@ -72,6 +84,7 @@ class Rect : Node
 
 class Action
     isDisabled: bool = false
+    isPaused: bool = false
 
     def abstract perform(var node: Node; dt: float): void
 
@@ -92,7 +105,7 @@ class RepeatForever: Action
         action = _action
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             if action.isDisabled
                 action->reset()
             action->perform(node, dt)
@@ -114,7 +127,7 @@ class MoveBy: Action
         interval = _interval
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             timer = timer + dt
             if timer >= interval
                 isDisabled = true
@@ -149,7 +162,7 @@ class JumpBy: Action
         interval = _interval
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             timer = timer + dt
             if timer >= interval
                 isDisabled = true
@@ -190,7 +203,7 @@ class TintTo: Action
         if !_once
             _once = true
             stint = int(node.tint % 0x01000000)
-        if !isDisabled
+        if !isDisabled && !isPaused
             timer = timer + dt
             if timer >= interval
                 isDisabled = true
@@ -220,7 +233,7 @@ class ScaleBy: Action
         interval = _interval
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             timer = timer + dt
             if timer >= interval
                 isDisabled = true
@@ -243,7 +256,7 @@ class ScaleBy: Action
 
 class Disappear: Action
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             isDisabled = true
             node->removeFromScene()
                 
@@ -260,7 +273,7 @@ class FuncCall: Action
         func <- _func
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             isDisabled = true
             invoke(func)
                 
@@ -278,7 +291,7 @@ class Wait: Action
         interval = _interval
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             timer = timer + dt
             if timer >= interval
                 isDisabled = true
@@ -300,7 +313,7 @@ class Sequence: Action
         actions |> push(action)
 
     def override perform(var node: Node; dt: float): void
-        if !isDisabled
+        if !isDisabled && !isPaused
             if index >= actions |> length()
                 isDisabled = true
             else
