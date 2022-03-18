@@ -222,6 +222,56 @@ class TintTo: Action
         timer = 0.0f
         isDisabled = false
 
+class FadeIn: Action
+    timer: float = 0.0f
+    interval: float = 0.0f
+    opacity: float = 0.0f
+
+    def FadeIn(_interval: float)
+        interval = _interval
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            timer = timer + dt
+            if timer >= interval
+                isDisabled = true
+                node->setOpacity(1.0f)
+            else
+                opacity = timer / interval
+                node->setOpacity(opacity)
+
+    def override draw(node: Node): void
+        pass
+
+    def override reset(): void
+        timer = 0.0f
+        isDisabled = false
+
+class FadeOut: Action
+    timer: float = 0.0f
+    interval: float = 0.0f
+    opacity: float = 1.0f
+
+    def FadeOut(_interval: float)
+        interval = _interval
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            timer = timer + dt
+            if timer >= interval
+                isDisabled = true
+                node->setOpacity(0.0f)
+            else
+                opacity = 1.0f - timer / interval
+                node->setOpacity(opacity)
+
+    def override draw(node: Node): void
+        pass
+
+    def override reset(): void
+        timer = 0.0f
+        isDisabled = false
+
 class ScaleBy: Action
     timer: float = 0.0f
     interval: float = 0.0f

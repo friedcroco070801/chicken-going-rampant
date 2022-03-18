@@ -6,6 +6,7 @@ require gamelib/pentwin/application
 def initialize()
     set_window_title("Chicken Going Rampant")
     set_resolution(1280, 720)
+    enable_alpha_blend()
 
     getApplication() = new Application("menu", new Scene())
 
