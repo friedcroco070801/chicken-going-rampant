@@ -66,3 +66,7 @@ let shared public
     EGG01 = "gamelib/assets/sprites/character/b01.png"
     EGG02 = "gamelib/assets/sprites/character/b02.png"
     EGG03 = "gamelib/assets/sprites/character/b03.png"
+    FIRE_EFFECT = "gamelib/assets/sprites/effect/fire.png"
+    ICE_EFFECT = "gamelib/assets/sprites/effect/ice.png"
+    LEAF_EFFECT = "gamelib/assets/sprites/effect/leaf.png"
+    EXPLODE_EFFECT = "gamelib/assets/sprites/effect/explode.png"

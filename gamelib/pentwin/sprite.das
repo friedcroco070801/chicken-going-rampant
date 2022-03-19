@@ -54,6 +54,11 @@ class Animation: Action
     index: int = 0
     timer: float = 0.0f
 
+    def finalize
+        for anim in anims
+            unsafe
+                delete anim
+
     def override isAnimation(): bool
         return true
 

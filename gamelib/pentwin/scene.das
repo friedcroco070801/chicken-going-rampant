@@ -52,6 +52,14 @@ class Scene
     children: array<Node?>
     events: array<Event?>
 
+    def finalize
+        for child in children
+            unsafe
+                delete child
+        for event in events
+            unsafe
+                delete event
+
     def initialize(): void 
         pass
 
@@ -73,8 +81,10 @@ class Scene
             i++
 
         // Update children
-        for child in children
-            child->update(dt)
+        i = 0
+        while i < children |> length()
+            children[i]->update(dt)
+            i++
 
         // Listen to event
         for event in events

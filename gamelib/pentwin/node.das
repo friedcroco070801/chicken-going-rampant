@@ -11,7 +11,14 @@ class Node
     scaleX, scaleY: float = 1.0f
     isRemoved: bool = false
 
-    def abstract draw(): void
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+
+    def draw(): void
+        for action in actionLists
+            action->draw(self)
 
     def update(dt: float): void
         isAnimated = false
@@ -68,6 +75,9 @@ class Node
         var i: int = 0
         while i < actionLists |> length()
             if actionLists[i]->isAnimation()
+                if actionLists[i].deletedOnDisabled
+                    unsafe
+                        delete actionLists[i]
                 actionLists |> erase(i)
                 i--
             i++
@@ -101,6 +111,7 @@ class Action
     isDisabled: bool = false
     isPaused: bool = false
     interval: float = 0.0f
+    deletedOnDisabled: bool = true
 
     def abstract perform(var node: Node; dt: float): void
 
@@ -110,6 +121,9 @@ class Action
 
     def setDisable(): void
         isDisabled = true
+
+    def keepOnDisabled(): void
+        deletedOnDisabled = false
 
     def isAnimation(): bool
         return false
@@ -423,6 +437,11 @@ class Sequence: Action
     index: int = 0
     actions: array<Action?>
 
+    def finalize
+        for action in actions
+            unsafe
+                delete action
+
     def addAction(action: Action?): void
         actions |> push(action)
         if action.interval > 0.0f
@@ -467,6 +486,11 @@ class Sequence: Action
 class Parallel: Action
     actions: array<Action?>
 
+    def finalize
+        for action in actions
+            unsafe
+                delete action
+                
     def addAction(action: Action?): void
         actions |> push(action)
         if action.interval > 0.0f

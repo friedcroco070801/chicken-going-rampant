@@ -4,6 +4,7 @@ require pentwin/sprite
 require pentwin/utils
 require math
 require constant
+require effect
 
 module level public
 
@@ -25,6 +26,9 @@ class LevelScene: Scene
 
     workerList: array<Sprite?>
     
+    def finalize
+        pass
+
     def drawBackground(): void
         var backdrop: Sprite? = new Sprite(BACKDROP)
         addChild(backdrop)
@@ -122,11 +126,12 @@ class LevelScene: Scene
         initializeWorkers()
 
         // Test
-        addArmy(createCharacter(unsafe(addr(self)), 004))
+        addArmy(createCharacter(unsafe(addr(self)), 002))
         // addArmy(new Army07Chilegcold(unsafe(addr(self))))
         
-        // addEnemy(new Enemy03Moubird(unsafe(addr(self))))
-        // addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
+        addEnemy(new Enemy03Moubird(unsafe(addr(self))))
+        addEnemy(createCharacter(unsafe(addr(self)), 204))
+        addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
 
     def override update(dt: float): void
         if !isPaused
@@ -139,7 +144,7 @@ class LevelScene: Scene
     def updateLogicPerCs(): void
         countTimer++
         if countTimer == 500
-            addEgg(createCharacter(unsafe(addr(self)), 103))
+            addEgg(createCharacter(unsafe(addr(self)), 102))
 
         // Remove dead characters
         var i: int = 0
@@ -211,6 +216,18 @@ class Character: Sprite
     dieAnimation: Action?
     takeDamageAnimation: Action?
 
+    def finalize
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+
     def updateLogicPerCs(): void
         pass
 
@@ -275,15 +292,13 @@ class TowerBase: Character
         seq->addAction(new MoveAnchorBy(float2(0.02f, 0.0f), 0.05f))
         seq->addAction(new MoveAnchorBy(float2(-0.01f, 0.0f), 0.025f))
         seq->setDisable()
+        seq->keepOnDisabled()
         takeDamageAnimation = seq
 
         // Die
-        var seq2: Sequence? = new Sequence()
-        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
-        seq2->addAction(new MoveAnchorBy(float2(0.08f, 0.0f), 0.025f))
-        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
-        dieAnimation = new RepeatForever(seq2)
-        dieAnimation->setDisable()    
+        dieAnimation = new FuncCallStored(3)
+        dieAnimation->setDisable()
+        dieAnimation->keepOnDisabled()
 
 class ArmyBase: TowerBase
     def ArmyBase(_level: LevelScene?; _hp: int)
@@ -298,6 +313,22 @@ class ArmyBase: TowerBase
         // Parmeters
         charCode = CharacterCode A00_BASE
 
+    def override funcCallStored3(): void
+        var seq2: Sequence? = new Sequence()
+        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
+        seq2->addAction(new MoveAnchorBy(float2(0.08f, 0.0f), 0.025f))
+        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
+        addAction(new RepeatForever(seq2))
+
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(5.0f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 100))
+
 class EnemyBase: TowerBase
     def EnemyBase(_level: LevelScene?; _hp: int)
         // Initialize sprite
@@ -311,7 +342,21 @@ class EnemyBase: TowerBase
         // Parmeters
         charCode = CharacterCode E00_BASE
 
+    def override funcCallStored3(): void
+        var seq2: Sequence? = new Sequence()
+        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
+        seq2->addAction(new MoveAnchorBy(float2(0.08f, 0.0f), 0.025f))
+        seq2->addAction(new MoveAnchorBy(float2(-0.04f, 0.0f), 0.0125f))
+        addAction(new RepeatForever(seq2))
 
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(5.0f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 100))
 
 /*
 =======================================================================================
@@ -344,6 +389,7 @@ class Army: Character
         seq->addAction(new TintTo(0xffffff, 0.0f))
         seq->setDisable()
         takeDamageAnimation = seq
+        seq->keepOnDisabled()
 
         // Die
         var seq2: Sequence? = new Sequence()
@@ -351,6 +397,7 @@ class Army: Character
         seq2->addAction(new Disappear())
         seq2->setDisable()
         dieAnimation = seq2
+        seq2->keepOnDisabled()
 
     def checkHasEnemy(): bool
         for enemy in level.enemyList
@@ -460,6 +507,7 @@ class Army01Chica: Army
             seq->addFrame(new AnimFrame(ARMY01, 0.2f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -467,6 +515,7 @@ class Army01Chica: Army
             seq2->addFrame(new AnimFrame(ARMY01, 0.2f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -488,6 +537,7 @@ class Army01Chica: Army
 
         attackAnimation = allSeq
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Army02Chiburn: Army
     def Army02Chiburn(_level: LevelScene?)
@@ -503,6 +553,7 @@ class Army02Chiburn: Army
             seq->addFrame(new AnimFrame(ARMY02, 0.1f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -510,6 +561,7 @@ class Army02Chiburn: Army
             seq2->addFrame(new AnimFrame(ARMY02, 0.1f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -535,6 +587,7 @@ class Army02Chiburn: Army
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Army03Chirystal: Army
     def Army03Chirystal(_level: LevelScene?)
@@ -550,6 +603,7 @@ class Army03Chirystal: Army
             seq->addFrame(new AnimFrame(ARMY03, 0.2f, float4(60.0f * float(i % 4), 100.0f * float(i / 4), 60.0f, 100.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -557,6 +611,7 @@ class Army03Chirystal: Army
             seq2->addFrame(new AnimFrame(ARMY03, 0.2f, float4(60.0f * float(i % 4), 100.0f * float(i / 4), 60.0f, 100.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -582,6 +637,7 @@ class Army03Chirystal: Army
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Army04Chileg: Army
     def Army04Chileg(_level: LevelScene?)
@@ -597,6 +653,7 @@ class Army04Chileg: Army
             seq->addFrame(new AnimFrame(ARMY04, 0.2f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -604,6 +661,7 @@ class Army04Chileg: Army
             seq2->addFrame(new AnimFrame(ARMY04, 0.2f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -629,6 +687,7 @@ class Army04Chileg: Army
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Army05Chibomb: Army
     def Army05Chibomb(_level: LevelScene?)
@@ -644,6 +703,7 @@ class Army05Chibomb: Army
             seq->addFrame(new AnimFrame(ARMY05, 0.075f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -651,15 +711,18 @@ class Army05Chibomb: Army
             seq2->addFrame(new AnimFrame(ARMY05, 0.075f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var dam: FuncCallStored? = new FuncCallStored(1)
         attackAnimation = dam
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
         // Die
-        dieAnimation = new Disappear()
+        dieAnimation = new FuncCallStored(4)
         dieAnimation->setDisable()
+        dieAnimation->keepOnDisabled()
 
     def override takeDamage(_dam: int): void
         damageEnemy()
@@ -668,6 +731,17 @@ class Army05Chibomb: Army
         Army`damageEnemy(self)
         hp = 0
         die()
+
+    def override funcCallStored4()
+        isRemoved = true
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(2.0f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        tempNode->addAction(new Explosion(0.5f, float2(x, y - 40.0f), 60.0f, 30))
 
 class Army06Chileghot: Army
     def Army06Chileghot(_level: LevelScene?)
@@ -683,6 +757,7 @@ class Army06Chileghot: Army
             seq->addFrame(new AnimFrame(ARMY06, 0.15f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -690,6 +765,7 @@ class Army06Chileghot: Army
             seq2->addFrame(new AnimFrame(ARMY06, 0.15f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -715,6 +791,7 @@ class Army06Chileghot: Army
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Army07Chilegcold: Army
     def Army07Chilegcold(_level: LevelScene?)
@@ -730,6 +807,7 @@ class Army07Chilegcold: Army
             seq->addFrame(new AnimFrame(ARMY07, 0.2f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -737,6 +815,7 @@ class Army07Chilegcold: Army
             seq2->addFrame(new AnimFrame(ARMY07, 0.2f, float4(240.0f * float(i % 4), 240.0f * float(i / 4), 240.0f, 240.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -762,6 +841,7 @@ class Army07Chilegcold: Army
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 /*
 =======================================================================================
@@ -849,6 +929,18 @@ class Egg01Fire: Egg
         moveAnimation = new RepeatForever(seq)
         addAction(moveAnimation)
 
+    def override die(): void
+        hp = 0
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(1.5f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        addAction(new Disappear())
+        tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 50))
+
 class Egg02Ice: Egg
     def Egg02Ice(_level: LevelScene?)
         // Initialize sprite
@@ -865,6 +957,18 @@ class Egg02Ice: Egg
         moveAnimation = new RepeatForever(seq)
         addAction(moveAnimation)
 
+    def override die(): void
+        hp = 0
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(2.0f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        addAction(new Disappear())
+        tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 50))
+
 class Egg03Seed: Egg
     def Egg03Seed(_level: LevelScene?)
         // Initialize sprite
@@ -880,6 +984,18 @@ class Egg03Seed: Egg
             seq->addFrame(new AnimFrame(EGG03, 0.075f, float4(40.0f * float(i % 4), 60.0f * float(i / 4), 40.0f, 60.0f)))
         moveAnimation = new RepeatForever(seq)
         addAction(moveAnimation)
+
+    def override die(): void
+        hp = 0
+        var seq: Sequence? = new Sequence()
+        seq->addAction(new FadeOut(0.0f))
+        seq->addAction(new Wait(2.0f))
+        seq->addAction(new Disappear())
+        var tempNode: Node? = new Node()
+        tempNode->addAction(seq)
+        level->addChild(tempNode)
+        addAction(new Disappear())
+        tempNode->addAction(new LeafStorm(2.0f, -350.0f, float2(x, y), 20.0f, 100.0f, 50))
         
 /*
 =======================================================================================
@@ -912,6 +1028,7 @@ class Enemy: Character
         seq->addAction(new TintTo(0xffffff, 0.0f))
         seq->setDisable()
         takeDamageAnimation = seq
+        takeDamageAnimation->keepOnDisabled()
 
         // Die
         var seq2: Sequence? = new Sequence()
@@ -919,6 +1036,7 @@ class Enemy: Character
         seq2->addAction(new Disappear())
         seq2->setDisable()
         dieAnimation = seq2
+        dieAnimation->keepOnDisabled()
 
     def checkHasArmy(): bool
         for army in level.armyList
@@ -1028,6 +1146,7 @@ class Enemy01Mouse: Enemy
             seq->addFrame(new AnimFrame(ENEMY01, 0.2f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -1035,6 +1154,7 @@ class Enemy01Mouse: Enemy
             seq2->addFrame(new AnimFrame(ENEMY01, 0.2f, float4(60.0f * float(i % 4), 80.0f * float(i / 4), 60.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -1056,6 +1176,7 @@ class Enemy01Mouse: Enemy
 
         attackAnimation = allSeq
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Enemy02Moucat: Enemy
     def Enemy02Moucat(_level: LevelScene?)
@@ -1071,6 +1192,7 @@ class Enemy02Moucat: Enemy
             seq->addFrame(new AnimFrame(ENEMY02, 0.2f, float4(76.0f * float(i % 4), 80.0f * float(i / 4), 76.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -1078,6 +1200,7 @@ class Enemy02Moucat: Enemy
             seq2->addFrame(new AnimFrame(ENEMY02, 0.2f, float4(76.0f * float(i % 4), 80.0f * float(i / 4), 76.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -1099,6 +1222,7 @@ class Enemy02Moucat: Enemy
 
         attackAnimation = allSeq
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Enemy03Moubird: Enemy
     def Enemy03Moubird(_level: LevelScene?)
@@ -1114,6 +1238,7 @@ class Enemy03Moubird: Enemy
             seq->addFrame(new AnimFrame(ENEMY03, 0.2f, float4(76.0f * float(i % 4), 136.0f * float(i / 4), 76.0f, 136.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -1121,6 +1246,7 @@ class Enemy03Moubird: Enemy
             seq2->addFrame(new AnimFrame(ENEMY03, 0.2f, float4(76.0f * float(i % 4), 136.0f * float(i / 4), 76.0f, 136.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -1146,6 +1272,7 @@ class Enemy03Moubird: Enemy
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Enemy04Moucroco: Enemy
     def Enemy04Moucroco(_level: LevelScene?)
@@ -1161,6 +1288,7 @@ class Enemy04Moucroco: Enemy
             seq->addFrame(new AnimFrame(ENEMY04, 0.3f, float4(84.0f * float(i % 4), 80.0f * float(i / 4), 84.0f, 80.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -1168,6 +1296,7 @@ class Enemy04Moucroco: Enemy
             seq2->addFrame(new AnimFrame(ENEMY04, 0.3f, float4(84.0f * float(i % 4), 80.0f * float(i / 4), 84.0f, 80.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -1193,6 +1322,7 @@ class Enemy04Moucroco: Enemy
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 class Enemy05Mouphant: Enemy
     def Enemy05Mouphant(_level: LevelScene?)
@@ -1208,6 +1338,7 @@ class Enemy05Mouphant: Enemy
             seq->addFrame(new AnimFrame(ENEMY05, 0.1f, float4(360.0f * float(i % 4), 180.0f * float(i / 4), 360.0f, 180.0f)))
         moveAnimation = new RepeatForever(seq)
         moveAnimation->setDisable()
+        moveAnimation->keepOnDisabled()
 
         // Idle
         var seq2: Animation? = new Animation()
@@ -1215,6 +1346,7 @@ class Enemy05Mouphant: Enemy
             seq2->addFrame(new AnimFrame(ENEMY05, 0.3f, float4(360.0f * float(i % 4), 180.0f * float(i / 4), 360.0f, 180.0f)))
         idleAnimation = new RepeatForever(seq2)
         idleAnimation->setDisable()
+        idleAnimation->keepOnDisabled()
 
         // Attack
         var allSeq: Sequence? = new Sequence()
@@ -1240,6 +1372,7 @@ class Enemy05Mouphant: Enemy
 
         attackAnimation = par
         attackAnimation->setDisable()
+        attackAnimation->keepOnDisabled()
 
 def createCharacter(level: LevelScene?; intcharcode: int): Character?
     if intcharcode == int(CharacterCode A01_NORMAL)
