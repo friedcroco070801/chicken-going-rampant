@@ -5,26 +5,32 @@ let shared public
     LINE_START = 240.0f
     LINE_END = 1120.0f
     LINE_GROUND = 540.0f
+    MAX_WORKER = 5
+
+    JUMP_DIE_HEIGHT = -200.0f
+    JUMP_DIE_DELTA_X = 100.0f
+    JUMP_DIE_DELTA_Y = 360.0f
+    JUMP_DIE_INTERVAL = 1.0f
 
 enum public CharacterCode
-    NONE
-    A00_BASE
-    A01_NORMAL
-    A02_FIRE
-    A03_ICE
-    A04_TREE
-    A05_BOMB
-    A06_FIRETREE
-    A07_ICETREE
-    B01_FIRE
-    B02_ICE
-    B03_TREE
-    E00_BASE
-    E01_NORMAL
-    E02_CAT
-    E03_BIRD
-    E04_CROCO
-    E05_ELEPHANT
+    NONE = -1
+    A00_BASE = 000
+    A01_NORMAL = 001
+    A02_FIRE = 002
+    A03_ICE = 003
+    A04_TREE = 004
+    A05_BOMB = 005
+    A06_FIRETREE = 006
+    A07_ICETREE = 007
+    B01_FIRE = 101
+    B02_ICE = 102
+    B03_TREE = 103
+    E00_BASE = 200
+    E01_NORMAL = 201
+    E02_CAT = 202
+    E03_BIRD = 203
+    E04_CROCO = 204
+    E05_ELEPHANT = 205
 
 enum public AttackType
     NONE
@@ -35,3 +41,28 @@ enum public CharacterState
     IDLING
     MOVING
     ATTACKING
+
+let shared public
+    BACKDROP = "gamelib/assets/sprites/background/backdrop.png"
+    GROUND = "gamelib/assets/sprites/background/ground.png"
+    CLOUD = "gamelib/assets/sprites/background/cloud.png"
+    MOUNTAIN = "gamelib/assets/sprites/background/mountain.png"
+    TREE = "gamelib/assets/sprites/background/tree.png"
+    ARMY_BASE = "gamelib/assets/sprites/tower/base.png"
+    ENEMY_BASE = "gamelib/assets/sprites/tower/enemy.png"
+    WORKER = "gamelib/assets/sprites/character/worker.png"
+    ARMY01 = "gamelib/assets/sprites/character/a01.png"
+    ARMY02 = "gamelib/assets/sprites/character/a02.png"
+    ARMY03 = "gamelib/assets/sprites/character/a03.png"
+    ARMY04 = "gamelib/assets/sprites/character/a04.png"
+    ARMY05 = "gamelib/assets/sprites/character/a05.png"
+    ARMY06 = "gamelib/assets/sprites/character/a06.png"
+    ARMY07 = "gamelib/assets/sprites/character/a07.png"
+    ENEMY01 = "gamelib/assets/sprites/character/e01.png"
+    ENEMY02 = "gamelib/assets/sprites/character/e02.png"
+    ENEMY03 = "gamelib/assets/sprites/character/e03.png"
+    ENEMY04 = "gamelib/assets/sprites/character/e04.png"
+    ENEMY05 = "gamelib/assets/sprites/character/e05.png"
+    EGG01 = "gamelib/assets/sprites/character/b01.png"
+    EGG02 = "gamelib/assets/sprites/character/b02.png"
+    EGG03 = "gamelib/assets/sprites/character/b03.png"

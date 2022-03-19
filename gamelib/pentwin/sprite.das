@@ -86,3 +86,4 @@ class Animation: Action
 
     def addFrame(frame: AnimFrame?): void
         anims |> push(frame)
+        interval = 1.0f

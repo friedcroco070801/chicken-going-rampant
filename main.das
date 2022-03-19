@@ -17,3 +17,5 @@ def act(dt: float)
 def draw()
     enable_alpha_blend()
     getApplication()->draw()
+
+    text_out(80, 20, "deltaX({erhh})", 0xff000000)

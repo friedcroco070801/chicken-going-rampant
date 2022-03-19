@@ -4,7 +4,7 @@ require random
 module utils public
 
 var private
-    seed = random_seed(0)
+    seed = random_seed(int(ref_time_ticks()))
 
 def randFloat01(): float
     return random_float(seed)

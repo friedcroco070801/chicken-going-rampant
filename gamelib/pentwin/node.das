@@ -25,8 +25,10 @@ class Node
             i++
 
         // Perform actions
-        for action in actionLists
-            action->perform(self, dt)
+        i = 0
+        while i < actionLists |> length()
+            actionLists[i]->perform(self, dt)
+            i++
 
         // Remove disabled actions
         i = 0
@@ -83,6 +85,11 @@ class Node
             actionLists[i].isPaused = false
             i++
 
+    def abstract funcCallStored1(): void
+    def abstract funcCallStored2(): void
+    def abstract funcCallStored3(): void
+    def abstract funcCallStored4(): void
+
 class Rect: Node
     def override draw(): void
         pass
@@ -93,6 +100,7 @@ class Rect: Node
 class Action
     isDisabled: bool = false
     isPaused: bool = false
+    interval: float = 0.0f
 
     def abstract perform(var node: Node; dt: float): void
 
@@ -126,7 +134,6 @@ class RepeatForever: Action
 
 class MoveBy: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     delta: float2 = float2(0.0f, 0.0f)
     d: float2 = float2(0.0f, 0.0f)
 
@@ -158,7 +165,6 @@ class MoveBy: Action
 
 class MoveAnchorBy: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     delta: float2 = float2(0.0f, 0.0f)
     d: float2 = float2(0.0f, 0.0f)
 
@@ -190,7 +196,6 @@ class MoveAnchorBy: Action
 
 class JumpBy: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     delta: float2 = float2(0.0f, 0.0f)
     d: float2 = float2(0.0f, 0.0f)
     height: float = 0.0f
@@ -229,7 +234,6 @@ class JumpBy: Action
 
 class TintTo: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     tint: uint  = 0xffffff
     dtint: int = 0
     stint: int = 0
@@ -264,7 +268,6 @@ class TintTo: Action
 
 class FadeIn: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     opacity: float = 0.0f
 
     def FadeIn(_interval: float)
@@ -289,7 +292,6 @@ class FadeIn: Action
 
 class FadeOut: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     opacity: float = 1.0f
 
     def FadeOut(_interval: float)
@@ -314,7 +316,6 @@ class FadeOut: Action
 
 class ScaleBy: Action
     timer: float = 0.0f
-    interval: float = 0.0f
     scale: float2 = float2(1.0f, 1.0f)
     dscale: float2 = float2(1.0f, 1.0f)
 
@@ -359,7 +360,7 @@ class Disappear: Action
 class FuncCall: Action
     func: lambda<(): void>
 
-    def FuncCall(var _func: lambda<(): void>)
+    def setFunc(var _func: lambda<(): void>)
         func <- _func
 
     def override perform(var node: Node; dt: float): void
@@ -373,9 +374,32 @@ class FuncCall: Action
     def override reset(): void
         isDisabled = false
 
+class FuncCallStored: Action
+    choice: int = 0
+
+    def FuncCallStored(_choice: int)
+        choice = _choice
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            isDisabled = true
+            if choice == 1
+                node->funcCallStored1()
+            elif choice == 2
+                node->funcCallStored2()
+            elif choice == 3
+                node->funcCallStored3()
+            elif choice == 4
+                node->funcCallStored4()
+                
+    def override draw(node: Node): void
+        pass
+
+    def override reset(): void
+        isDisabled = false
+
 class Wait: Action
     timer: float = 0.0f
-    interval: float = 0.0f
 
     def Wait(_interval: float)
         interval = _interval
@@ -401,13 +425,27 @@ class Sequence: Action
 
     def addAction(action: Action?): void
         actions |> push(action)
+        if action.interval > 0.0f
+            interval = 1.0f
 
     def override perform(var node: Node; dt: float): void
         if !isDisabled && !isPaused
             if index >= actions |> length()
                 isDisabled = true
             else
-                actions[index]->perform(node, dt)
+                while index < actions |> length()
+                    if actions[index].interval == 0.0f
+                        actions[index]->perform(node, dt)
+                        if actions[index].isDisabled
+                            index = index + 1
+                        else
+                            break
+                    else
+                        actions[index]->perform(node, dt)
+                        break
+                if index >= actions |> length()
+                    isDisabled = true
+                    return
                 if actions[index].isDisabled
                     index = index + 1
                     if index >= actions |> length()
@@ -422,6 +460,32 @@ class Sequence: Action
 
     def override reset(): void
         index = 0
+        for action in actions
+            action->reset()
+        isDisabled = false
+
+class Parallel: Action
+    actions: array<Action?>
+
+    def addAction(action: Action?): void
+        actions |> push(action)
+        if action.interval > 0.0f
+            interval = 1.0f
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            isDisabled = true
+            for action in actions
+                action->perform(node, dt)
+                if !action.isDisabled
+                    isDisabled = false
+                
+    def override draw(node: Node): void
+        if !isDisabled
+            for action in actions
+                action->draw(node)
+
+    def override reset(): void
         for action in actions
             action->reset()
         isDisabled = false
