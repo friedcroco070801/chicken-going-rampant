@@ -1,64 +1,63 @@
 require node
 require daslib/media
 
+require spritepool
+
 module sprite public
 
 class Sprite: Node
-    image: Image
+    image: Image?
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
 
     def finalize
         for action in actionLists
             unsafe
                 delete action
-        unsafe
-            delete image
 
     def Sprite(filename: string): void
-        image <- create_image(filename)
+        image = getImage(filename)
         width = float(image.width)
         height = float(image.height)
         rect = float4(0.0f, 0.0f, width, height)
 
     def Sprite(filename: string; _rect: float4): void
-        image <- create_image(filename)
+        image = getImage(filename)
         width = float(_rect.z)
         height = float(_rect.w)
         rect = _rect
 
     def override draw(): void
         if !isAnimated
-            image |> draw_image_region(x - anchorX * width * scaleX, y - anchorY * height * scaleY, rect, tint, float2(width * scaleX, height * scaleY))
+            *image |> draw_image_region(x - anchorX * width * scaleX, y - anchorY * height * scaleY, rect, tint, float2(width * scaleX, height * scaleY))
 
         for action in actionLists
             action->draw(self)
 
 class AnimFrame
-    image: Image
+    image: Image?
     width, height: float = 0.0f
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
     interval: float = 0.0f
 
     def finalize
-        unsafe
-            delete image
+        pass
 
     def AnimFrame(filename: string; _interval: float): void
-        image <- create_image(filename)
+        image = getImage(filename)
         width = float(image.width)
         height = float(image.height)
         rect = float4(0.0f, 0.0f, width, height)
         interval = _interval
 
     def AnimFrame(filename: string; _interval: float; _rect: float4): void
-        image <- create_image(filename)
+        image = getImage(filename)
         width = float(_rect.z)
         height = float(_rect.w)
         rect = _rect
         interval = _interval
 
     def draw(node: Node): void
-        image |> draw_image_region(node.x - node.anchorX * width * node.scaleX, node.y - node.anchorY * height * node.scaleY, rect, node.tint, float2(width * node.scaleX, height * node.scaleY))
+        *image |> draw_image_region(node.x - node.anchorX * width * node.scaleX, node.y - node.anchorY * height * node.scaleY, rect, node.tint, float2(width * node.scaleX, height * node.scaleY))
 
 class Animation: Action
     anims: array<AnimFrame?>

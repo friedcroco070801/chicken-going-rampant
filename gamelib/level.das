@@ -250,7 +250,7 @@ class Character: Sprite
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def updateLogicPerCs(): void
         pass
@@ -313,7 +313,7 @@ class TowerBase: Character
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def TowerBase(_level: LevelScene?; _hp: int)
         // Parmeters
@@ -357,7 +357,7 @@ class ArmyBase: TowerBase
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def ArmyBase(_level: LevelScene?; _hp: int)
         // Initialize sprite
@@ -402,7 +402,7 @@ class EnemyBase: TowerBase
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def EnemyBase(_level: LevelScene?; _hp: int)
         // Initialize sprite
@@ -452,7 +452,7 @@ class Army: Character
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army(_level: LevelScene?; _charCode: CharacterCode; _attackType: AttackType; _hp: int; _speed: float; _damage: int; _idleInterval: float; _noticeFront: float; _noticeBack: float; _rangeFront: float; _rangeBack: float)
         // Sprite
@@ -599,7 +599,7 @@ class Army01Chica: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army01Chica(_level: LevelScene?)
         // Initialize sprite
@@ -662,7 +662,7 @@ class Army02Chiburn: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army02Chiburn(_level: LevelScene?)
         // Initialize sprite
@@ -729,7 +729,7 @@ class Army03Chirystal: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army03Chirystal(_level: LevelScene?)
         // Initialize sprite
@@ -796,7 +796,7 @@ class Army04Chileg: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army04Chileg(_level: LevelScene?)
         // Initialize sprite
@@ -863,7 +863,7 @@ class Army05Chibomb: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army05Chibomb(_level: LevelScene?)
         // Initialize sprite
@@ -934,7 +934,7 @@ class Army06Chileghot: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army06Chileghot(_level: LevelScene?)
         // Initialize sprite
@@ -1001,7 +1001,7 @@ class Army07Chilegcold: Army
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Army07Chilegcold(_level: LevelScene?)
         // Initialize sprite
@@ -1075,7 +1075,7 @@ class Egg: Character
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Egg(_level: LevelScene?; _charCode: CharacterCode; _speed: float)
         // Sprite
@@ -1156,7 +1156,7 @@ class Egg01Fire: Egg
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Egg01Fire(_level: LevelScene?)
         // Initialize sprite
@@ -1201,7 +1201,7 @@ class Egg02Ice: Egg
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Egg02Ice(_level: LevelScene?)
         // Initialize sprite
@@ -1246,7 +1246,7 @@ class Egg03Seed: Egg
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Egg03Seed(_level: LevelScene?)
         // Initialize sprite
@@ -1296,7 +1296,7 @@ class Enemy: Character
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy(_level: LevelScene?; _charCode: CharacterCode; _attackType: AttackType; _hp: int; _speed: float; _damage: int; _idleInterval: float; _noticeFront: float; _noticeBack: float; _rangeFront: float; _rangeBack: float)
         // Sprite
@@ -1443,7 +1443,7 @@ class Enemy01Mouse: Enemy
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy01Mouse(_level: LevelScene?)
         // Initialize sprite
@@ -1506,7 +1506,7 @@ class Enemy02Moucat: Enemy
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy02Moucat(_level: LevelScene?)
         // Initialize sprite
@@ -1569,7 +1569,7 @@ class Enemy03Moubird: Enemy
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy03Moubird(_level: LevelScene?)
         // Initialize sprite
@@ -1636,7 +1636,7 @@ class Enemy04Moucroco: Enemy
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy04Moucroco(_level: LevelScene?)
         // Initialize sprite
@@ -1703,7 +1703,7 @@ class Enemy05Mouphant: Enemy
         unsafe
             delete takeDamageAnimation
         unsafe
-            delete image
+            pass // delete image
 
     def Enemy05Mouphant(_level: LevelScene?)
         // Initialize sprite
