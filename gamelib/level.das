@@ -5,6 +5,8 @@ require pentwin/utils
 require math
 require constant
 require effect
+require counter
+require unitbar
 
 module level public
 
@@ -26,6 +28,9 @@ class LevelScene: Scene
 
     workerList: array<Sprite?>
     
+    energyBar: Counter?
+    energy: int = 0
+
     def finalize
         for child in children
             unsafe
@@ -123,6 +128,67 @@ class LevelScene: Scene
         enemyList |> push(_enemy)
         addChild(_enemy)
 
+    def drawEnergy(): void
+        var energybarfore: Sprite? = new Sprite(ENERGY_BAR)
+        energybarfore->setPosition(20.0f, 20.0f)
+        addChild(energybarfore)
+
+        energyBar = new Counter()
+        energyBar->setPosition(240.0f, 61.0f)
+        energyBar->setValue(9999)
+        energyBar->setFontScale(0.5f)
+        energyBar->setLeftAligned(false)
+        addChild(energyBar)
+
+    def initializeUnitBar(): void
+        // Worker bar
+        var workerBar: UnitBar? = createUnitBar(000)
+        workerBar->setPosition(200.0f, 675.0f)
+        addChild(workerBar)
+
+        var clickWorker: ClickOn? = new ClickOn(workerBar)
+        unsafe
+            clickWorker->setOnMouseDown() <| @ [[=workerBar, &self]]
+                if !workerBar.isDisabled
+                    if self.energy >= workerBar.costValue
+                        self.energy -= workerBar.costValue
+                        workerBar->reset()
+                        self->addWorker()
+                        workerBar->setCost(COST_TABLE[self.worker])
+                        if self.worker == MAX_WORKER
+                            workerBar->setDisabled(true)
+                    else
+                        workerBar->redHightlightCost()
+        addEvent(clickWorker)
+
+        // Add army unit bar
+        let avail <- [[auto 001; 101; 102]]//; 103; 005]]
+        for i in range(0, MAX_BAR - 1)
+            if i < avail |> length()
+                var code: int = avail[i]
+                var unitBar: UnitBar? = createUnitBar(code)
+                unitBar->setPosition(200.0f + 150.0f * float(i + 1), 675.0f)
+                addChild(unitBar)
+
+                var clickBar: ClickOn? = new ClickOn(unitBar)
+                unsafe
+                    clickBar->setOnMouseDown() <| @ [[=unitBar, &self, =code]]
+                        if !unitBar.isDisabled && !unitBar.isRecharging
+                            if self.energy >= unitBar.costValue
+                                self.energy -= unitBar.costValue
+                                unitBar->reset()
+                                if code < 100
+                                    self->addArmy(createCharacter(unsafe(addr(self)), code))
+                                else
+                                    self->addEgg(createCharacter(unsafe(addr(self)), code))
+                            else
+                                unitBar->redHightlightCost()
+                addEvent(clickBar)
+            else
+                var unitBar: UnitBar? = createUnitBar(-1)
+                unitBar->setPosition(200.0f + 150.0f * float(i + 1), 675.0f)
+                addChild(unitBar)
+
     def override initialize(): void
         // Draw backgrounds
         drawBackground()
@@ -132,6 +198,12 @@ class LevelScene: Scene
 
         // Initialize workers
         initializeWorkers()
+
+        // Draw energy bar
+        drawEnergy()
+
+        // Initialize unit bar
+        initializeUnitBar()
 
         // Test
         addArmy(createCharacter(unsafe(addr(self)), 002))
@@ -147,6 +219,9 @@ class LevelScene: Scene
             while timer >= CENTISEC
                 timer -= CENTISEC
                 updateLogicPerCs()
+        
+        energyBar->setValue(energy)
+
         Scene`update(self, dt)
 
     def updateLogicPerCs(): void
@@ -157,12 +232,13 @@ class LevelScene: Scene
             addArmy(createCharacter(unsafe(addr(self)), 004))
         if countTimer == 1500
             addEgg(createCharacter(unsafe(addr(self)), 101))
+            energy = 1000
         if countTimer == 1800
             addEgg(createCharacter(unsafe(addr(self)), 102))
         if countTimer == 2500
             addArmy(createCharacter(unsafe(addr(self)), 005))
         if countTimer % 600 == 0
-            addEgg(createCharacter(unsafe(addr(self)), 103))
+            addEgg(createCharacter(unsafe(addr(self)), 101 + countTimer / 600 % 3))
         erhh = float(children |> length())
 
         // Remove dead characters
@@ -916,7 +992,7 @@ class Army05Chibomb: Army
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(0.5f, float2(x, y - 40.0f), 60.0f, 20))
+        tempNode->addAction(new Explosion(1.2f, float2(x, y - 40.0f), 60.0f, 50))
 
 class Army06Chileghot: Army
     def finalize
@@ -1183,7 +1259,7 @@ class Egg01Fire: Egg
         tempNode->addAction(seq)
         level->addChild(tempNode)
         addAction(new Disappear())
-        tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 25))
+        tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 40))
 
 class Egg02Ice: Egg
     def finalize
@@ -1228,7 +1304,7 @@ class Egg02Ice: Egg
         tempNode->addAction(seq)
         level->addChild(tempNode)
         addAction(new Disappear())
-        tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 25))
+        tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 40))
 
 class Egg03Seed: Egg
     def finalize

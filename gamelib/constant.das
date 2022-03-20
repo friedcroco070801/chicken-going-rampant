@@ -6,11 +6,15 @@ let shared public
     LINE_END = 1120.0f
     LINE_GROUND = 540.0f
     MAX_WORKER = 5
+    MAX_BAR = 6
 
     JUMP_DIE_HEIGHT = -200.0f
     JUMP_DIE_DELTA_X = 100.0f
     JUMP_DIE_DELTA_Y = 360.0f
     JUMP_DIE_INTERVAL = 1.0f
+
+var public
+    COST_TABLE <- {{1 => 100; 2 => 200; 3 => 300; 4 => 400; 5 => 9999}}
 
 enum public CharacterCode
     NONE = -1
@@ -70,3 +74,15 @@ let shared public
     ICE_EFFECT = "gamelib/assets/sprites/effect/ice.png"
     LEAF_EFFECT = "gamelib/assets/sprites/effect/leaf.png"
     EXPLODE_EFFECT = "gamelib/assets/sprites/effect/explode.png"
+    NUMBER_FONT = "gamelib/assets/sprites/utils/number.png"
+    BAR_BASE = "gamelib/assets/sprites/bar/base.png"
+    BAR_BOMB = "gamelib/assets/sprites/bar/bomb.png"
+    BAR_NORMAL = "gamelib/assets/sprites/bar/normal.png"
+    BAR_FIRE = "gamelib/assets/sprites/bar/fire.png"
+    BAR_ICE = "gamelib/assets/sprites/bar/ice.png"
+    BAR_LEAF = "gamelib/assets/sprites/bar/seed.png"
+    BAR_WORKER = "gamelib/assets/sprites/bar/worker.png"
+    BAR_RECHARGE = "gamelib/assets/sprites/bar/recharge.png"
+    BAR_FLASH = "gamelib/assets/sprites/bar/flash.png"
+    BAR_LOCK = "gamelib/assets/sprites/bar/lock.png"
+    ENERGY_BAR = "gamelib/assets/sprites/bar/counter.png"
