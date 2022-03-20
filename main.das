@@ -44,6 +44,11 @@ def preload()
     preloadImage(BAR_FLASH)
     preloadImage(BAR_LOCK)
     preloadImage(ENERGY_BAR)
+    preloadImage(RESULT_FLASH)
+    preloadImage(RESULT_FORE)
+    preloadImage(RESULT_LOSE)
+    preloadImage(RESULT_VICTORY)
+    preloadImage(EFFECT_STAR)
 
 [export]
 def initialize()

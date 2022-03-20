@@ -86,3 +86,8 @@ let shared public
     BAR_FLASH = "gamelib/assets/sprites/bar/flash.png"
     BAR_LOCK = "gamelib/assets/sprites/bar/lock.png"
     ENERGY_BAR = "gamelib/assets/sprites/bar/counter.png"
+    RESULT_FLASH = "gamelib/assets/sprites/result/flash_bg.jpg"
+    RESULT_FORE = "gamelib/assets/sprites/result/fore_bg.jpg"
+    RESULT_LOSE = "gamelib/assets/sprites/result/lose_noti.png"
+    RESULT_VICTORY = "gamelib/assets/sprites/result/victory_noti.png"
+    EFFECT_STAR = "gamelib/assets/sprites/result/star.png"

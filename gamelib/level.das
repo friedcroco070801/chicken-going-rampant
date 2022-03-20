@@ -16,6 +16,7 @@ class LevelScene: Scene
     timer: float = 0.0f
     countTimer: int = 0 // number of centisecs
     isPaused: bool = false
+    isEndGame: bool = false
 
     worker: int = 0
 
@@ -30,6 +31,8 @@ class LevelScene: Scene
     
     energyBar: Counter?
     energy: int = 0
+
+    unitBars: array<UnitBar?>
 
     def finalize
         for child in children
@@ -145,6 +148,7 @@ class LevelScene: Scene
         var workerBar: UnitBar? = createUnitBar(000)
         workerBar->setPosition(200.0f, 675.0f)
         addChild(workerBar)
+        unitBars |> push(workerBar)
 
         var clickWorker: ClickOn? = new ClickOn(workerBar)
         unsafe
@@ -162,7 +166,7 @@ class LevelScene: Scene
         addEvent(clickWorker)
 
         // Add army unit bar
-        let avail <- [[auto 001; 101; 102]]//; 103; 005]]
+        let avail <- [[auto 001; 101; 102; 103; 005]]
         for i in range(0, MAX_BAR - 1)
             if i < avail |> length()
                 var code: int = avail[i]
@@ -184,10 +188,14 @@ class LevelScene: Scene
                             else
                                 unitBar->redHightlightCost()
                 addEvent(clickBar)
+
+                unitBars |> push(unitBar)
             else
                 var unitBar: UnitBar? = createUnitBar(-1)
                 unitBar->setPosition(200.0f + 150.0f * float(i + 1), 675.0f)
                 addChild(unitBar)
+
+                unitBars |> push(unitBar)
 
     def override initialize(): void
         // Draw backgrounds
@@ -209,8 +217,8 @@ class LevelScene: Scene
         addArmy(createCharacter(unsafe(addr(self)), 002))
         // addArmy(new Army07Chilegcold(unsafe(addr(self))))
         
-        addEnemy(new Enemy03Moubird(unsafe(addr(self))))
-        addEnemy(createCharacter(unsafe(addr(self)), 204))
+        // addEnemy(new Enemy03Moubird(unsafe(addr(self))))
+        // addEnemy(createCharacter(unsafe(addr(self)), 204))
         // addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
 
     def override update(dt: float): void
@@ -225,57 +233,113 @@ class LevelScene: Scene
         Scene`update(self, dt)
 
     def updateLogicPerCs(): void
-        countTimer++
-        if countTimer == 500
-            addEgg(createCharacter(unsafe(addr(self)), 103))
-        if countTimer == 1000
-            addArmy(createCharacter(unsafe(addr(self)), 004))
-        if countTimer == 1500
-            addEgg(createCharacter(unsafe(addr(self)), 101))
-            energy = 1000
-        if countTimer == 1800
-            addEgg(createCharacter(unsafe(addr(self)), 102))
-        if countTimer == 2500
-            addArmy(createCharacter(unsafe(addr(self)), 005))
-        if countTimer % 600 == 0
-            addEgg(createCharacter(unsafe(addr(self)), 101 + countTimer / 600 % 3))
-        erhh = float(children |> length())
+        if !isPaused
+            countTimer++
+            if countTimer == 500
+                addEgg(createCharacter(unsafe(addr(self)), 101))
+                energy = 2000
 
-        // Remove dead characters
-        var i: int = 0
-        while i < armyList |> length()
-            if armyList[i]->isDead()
-                armyList |> erase(i)
-                i--
-            i++
-        i = 0
-        while i < eggList |> length()
-            if eggList[i]->isDead()
-                eggList |> erase(i)
-                i--
-            i++
-        i = 0
-        while i < enemyList |> length()
-            if enemyList[i]->isDead()
-                enemyList |> erase(i)
-                i--
-            i++
+            erhh = float(children |> length())
 
-        // Update each character
-        for char in armyList
-            char->updateLogicPerCs()
-        for char in eggList
-            char->updateLogicPerCs()
-        for char in enemyList
-            char->updateLogicPerCs()
+            // Remove dead characters
+            var i: int = 0
+            while i < armyList |> length()
+                if armyList[i]->isDead()
+                    armyList |> erase(i)
+                    i--
+                i++
+            i = 0
+            while i < eggList |> length()
+                if eggList[i]->isDead()
+                    eggList |> erase(i)
+                    i--
+                i++
+            i = 0
+            while i < enemyList |> length()
+                if enemyList[i]->isDead()
+                    enemyList |> erase(i)
+                    i--
+                i++
+
+            // Update each character
+            for char in armyList
+                char->updateLogicPerCs()
+            for char in eggList
+                char->updateLogicPerCs()
+            for char in enemyList
+                char->updateLogicPerCs()
+            for unitBar in unitBars
+                unitBar->updateLogicPerCs()
+
+            // Check win/lose conditions
+            if !isEndGame
+                if isLoser()
+                    lose()
+                    isEndGame = true
+                    return
+                if isWinner()
+                    win()
+                    isEndGame = true
 
     def isWinner(): bool
         return enemyBase->isDead()
 
     def win(): void
-        pauseAllEvents()
-        pauseAllActions()
-        isPaused = true
+        var temp: Node? = new Node()
+        var seq: Sequence? = new Sequence()
+
+        // Wait
+        seq->addAction(new Wait(3.0f))
+        
+        // Flash and pause
+        var flash: FuncCall? = new FuncCall()
+        unsafe
+            flash->setFunc() <| @ [[&self]]
+                self->pauseAllEvents()
+                self->pauseAllActions()
+                self.isPaused = true
+
+                var white: Sprite? = new Sprite(RESULT_FLASH)
+                white->setOpacity(0.0f)
+
+                var inSeq: Sequence? = new Sequence()
+                inSeq->addAction(new FadeIn(0.1f))
+                inSeq->addAction(new FadeOut(0.1f))
+                inSeq->addAction(new Wait(1.0f))
+
+                // Fore fade in and victory
+                var victory: FuncCall? = new FuncCall()
+                unsafe
+                    victory->setFunc() <| @ [[&self]]
+                        var fore: Sprite? = new Sprite(RESULT_FORE)
+                        fore->setOpacity(0.0f)
+                        fore->addAction(new FadeTo(0.5f, 1.0f))
+                        self->addChild(fore)
+
+                        var victor: Sprite? = new Sprite(RESULT_VICTORY)
+                        victor->setOpacity(0.0f)
+                        victor->setPosition(640.0f, 360.0f)
+                        victor->setAnchor(0.5f, 0.5f)
+                        victor->setScale(3.0f, 3.0f)
+                        victor->addAction(new FadeIn(0.3f))
+                        victor->addAction(new ScaleBy(float2(0.4f, 0.4f), 0.3f))
+                        self->addChild(victor)
+
+                        var inSeq: Sequence? = new Sequence()
+                        inSeq->addAction(new Wait(0.3f))
+                        inSeq->addAction(new StarBurst(2.0f, -100.0f, float2(640.0f, 360.0f), float2(1000.0f, 600.0f), 70))
+                        fore->addAction(inSeq)
+
+                    inSeq->addAction(victory)
+
+                white->addAction(inSeq)
+
+                self->addChild(white)
+            seq->addAction(flash)
+
+        temp->addAction(seq)
+        addChild(temp)
+        
 
     def isLoser(): bool
         return armyBase->isDead()

@@ -68,12 +68,13 @@ class UnitBar: Sprite
         recharge->update(dt)
         flash->update(dt)
 
+    def updateLogicPerCs(): void
         // Update more
         if isDisabled
             fore->setOpacity(0.5f)
             recharge->setScale(1.0f, 1.0f)
         else
-            timer = max(0.0f, timer - dt)
+            timer = max(0.0f, timer - CENTISEC)
             recharge->setScale(1.0f, timer / rechargeTime)
             if timer == 0.0f
                 if isRecharging

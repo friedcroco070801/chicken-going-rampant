@@ -206,3 +206,48 @@ class Explosion: Action
         for sprite in sprites
             sprite.isRemoved = false
         isDisabled = false
+
+class StarBurst: Action
+    sprites: array<Sprite?>
+    timer: float = 0.0f
+
+    def finalize
+        for sprite in sprites
+            unsafe
+                delete sprite
+
+    def StarBurst(_interval: float; _height: float; _center: float2; _radius: float2; _spots: int)
+        interval = _interval
+        for i in range(0, _spots)
+            var sp: Sprite? = new Sprite(EFFECT_STAR)
+            sp->setAnchor(0.5f, 0.5f)
+            sp->setPosition(_center.x, _center.y)
+            var scale: float = 0.75f + randFloat01() * 0.5f
+            sp->setScale(scale * float(randIntM11()), scale * float(randIntM11()))
+            var seq: Sequence? = new Sequence()
+            seq->addAction(new FadeOut(_interval))
+            seq->addAction(new Disappear())
+            sp->addAction(seq)
+            sp->addAction(new JumpBy(float2(_radius.x * (randFloat01() * 2.0f - 1.0f), _radius.y * (randFloat01() * 2.0f - 1.0f)), _height * 0.5f * (1.0f + randFloat01()), _interval))
+            sprites |> push(sp)
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            timer = timer + dt
+            if timer > interval
+                isDisabled = true
+            for sprite in sprites
+                if !sprite.isRemoved
+                    sprite->update(dt)
+                
+    def override draw(node: Node): void
+        if !isDisabled
+            for sprite in sprites
+                if !sprite.isRemoved
+                    sprite->draw()
+
+    def override reset(): void
+        // Cannot be reset completely
+        for sprite in sprites
+            sprite.isRemoved = false
+        isDisabled = false

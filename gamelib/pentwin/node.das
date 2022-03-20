@@ -69,7 +69,7 @@ class Node
 
     def setOpacity(opacity: float): void
         let t = uint(256 * 256 * 256)
-        tint = tint % t + uint(opacity * 256.0f) * t
+        tint = tint % t + uint(opacity * 255.0f) * t
 
     def addAction(action: Action?): void
         actionLists |> push(action)
@@ -322,6 +322,39 @@ class FadeOut: Action
                 node->setOpacity(0.0f)
             else
                 opacity = 1.0f - timer / interval
+                node->setOpacity(opacity)
+
+    def override draw(node: Node): void
+        pass
+
+    def override reset(): void
+        timer = 0.0f
+        isDisabled = false
+
+class FadeTo: Action
+    timer: float = 0.0f
+    opacity: float = 1.0f
+    finalOpa: float = 1.0f
+    deltaOpa: float = 0.0f
+    betOpa: float = 0.0f
+
+    def FadeTo(_opacity: float; _interval: float)
+        interval = _interval
+        finalOpa = _opacity
+
+    def override perform(var node: Node; dt: float): void
+        if !isDisabled && !isPaused
+            if timer == 0.0f
+                opacity = float(node.tint / (0xffffff + 0x1)) / 255.0f
+                deltaOpa = finalOpa - opacity
+            timer = timer + dt
+            if timer >= interval
+                isDisabled = true
+                node->setOpacity(finalOpa)
+            else
+                opacity = opacity - betOpa
+                betOpa = deltaOpa * timer / interval
+                opacity = opacity + betOpa
                 node->setOpacity(opacity)
 
     def override draw(node: Node): void
