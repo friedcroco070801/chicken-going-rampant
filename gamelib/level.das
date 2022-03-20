@@ -27,7 +27,15 @@ class LevelScene: Scene
     workerList: array<Sprite?>
     
     def finalize
-        pass
+        for child in children
+            unsafe
+                delete child
+        for event in events
+            unsafe
+                delete event
+        for i in range(worker + 1, workerList |> length())
+            unsafe
+                delete workerList[i]
 
     def drawBackground(): void
         var backdrop: Sprite? = new Sprite(BACKDROP)
@@ -131,7 +139,7 @@ class LevelScene: Scene
         
         addEnemy(new Enemy03Moubird(unsafe(addr(self))))
         addEnemy(createCharacter(unsafe(addr(self)), 204))
-        addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
+        // addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
 
     def override update(dt: float): void
         if !isPaused
@@ -144,7 +152,18 @@ class LevelScene: Scene
     def updateLogicPerCs(): void
         countTimer++
         if countTimer == 500
+            addEgg(createCharacter(unsafe(addr(self)), 103))
+        if countTimer == 1000
+            addArmy(createCharacter(unsafe(addr(self)), 004))
+        if countTimer == 1500
+            addEgg(createCharacter(unsafe(addr(self)), 101))
+        if countTimer == 1800
             addEgg(createCharacter(unsafe(addr(self)), 102))
+        if countTimer == 2500
+            addArmy(createCharacter(unsafe(addr(self)), 005))
+        if countTimer % 600 == 0
+            addEgg(createCharacter(unsafe(addr(self)), 103))
+        erhh = float(children |> length())
 
         // Remove dead characters
         var i: int = 0
@@ -217,6 +236,9 @@ class Character: Sprite
     takeDamageAnimation: Action?
 
     def finalize
+        for action in actionLists
+            unsafe
+                delete action
         unsafe
             delete idleAnimation
         unsafe
@@ -227,6 +249,8 @@ class Character: Sprite
             delete dieAnimation
         unsafe
             delete takeDamageAnimation
+        unsafe
+            delete image
 
     def updateLogicPerCs(): void
         pass
@@ -274,6 +298,23 @@ class Character: Sprite
         return hp <= 0
 
 class TowerBase: Character
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def TowerBase(_level: LevelScene?; _hp: int)
         // Parmeters
         level = _level
@@ -301,6 +342,23 @@ class TowerBase: Character
         dieAnimation->keepOnDisabled()
 
 class ArmyBase: TowerBase
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def ArmyBase(_level: LevelScene?; _hp: int)
         // Initialize sprite
         Sprite`Sprite(self, ARMY_BASE)
@@ -321,15 +379,31 @@ class ArmyBase: TowerBase
         addAction(new RepeatForever(seq2))
 
         var seq: Sequence? = new Sequence()
-        seq->addAction(new FadeOut(0.0f))
         seq->addAction(new Wait(5.0f))
         seq->addAction(new Disappear())
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 100))
+        tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 50))
 
 class EnemyBase: TowerBase
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def EnemyBase(_level: LevelScene?; _hp: int)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY_BASE)
@@ -350,13 +424,12 @@ class EnemyBase: TowerBase
         addAction(new RepeatForever(seq2))
 
         var seq: Sequence? = new Sequence()
-        seq->addAction(new FadeOut(0.0f))
         seq->addAction(new Wait(5.0f))
         seq->addAction(new Disappear())
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 100))
+        tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 50))
 
 /*
 =======================================================================================
@@ -364,6 +437,23 @@ ARMY DEFINITIONS
 =======================================================================================
 */
 class Army: Character
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army(_level: LevelScene?; _charCode: CharacterCode; _attackType: AttackType; _hp: int; _speed: float; _damage: int; _idleInterval: float; _noticeFront: float; _noticeBack: float; _rangeFront: float; _rangeBack: float)
         // Sprite
         setPosition(LINE_START, LINE_GROUND)
@@ -494,6 +584,23 @@ class Army: Character
         idle()
 
 class Army01Chica: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army01Chica(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY01, float4(0.0f, 0.0f, 60.0f, 80.0f))
@@ -540,6 +647,23 @@ class Army01Chica: Army
         attackAnimation->keepOnDisabled()
 
 class Army02Chiburn: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army02Chiburn(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY02, float4(0.0f, 0.0f, 60.0f, 80.0f))
@@ -590,6 +714,23 @@ class Army02Chiburn: Army
         attackAnimation->keepOnDisabled()
 
 class Army03Chirystal: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army03Chirystal(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY03, float4(0.0f, 0.0f, 60.0f, 100.0f))
@@ -640,6 +781,23 @@ class Army03Chirystal: Army
         attackAnimation->keepOnDisabled()
 
 class Army04Chileg: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army04Chileg(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY04, float4(0.0f, 0.0f, 240.0f, 240.0f))
@@ -690,6 +848,23 @@ class Army04Chileg: Army
         attackAnimation->keepOnDisabled()
 
 class Army05Chibomb: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army05Chibomb(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY05, float4(0.0f, 0.0f, 60.0f, 80.0f))
@@ -741,9 +916,26 @@ class Army05Chibomb: Army
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(0.5f, float2(x, y - 40.0f), 60.0f, 30))
+        tempNode->addAction(new Explosion(0.5f, float2(x, y - 40.0f), 60.0f, 20))
 
 class Army06Chileghot: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army06Chileghot(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY06, float4(0.0f, 0.0f, 240.0f, 240.0f))
@@ -794,6 +986,23 @@ class Army06Chileghot: Army
         attackAnimation->keepOnDisabled()
 
 class Army07Chilegcold: Army
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Army07Chilegcold(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ARMY07, float4(0.0f, 0.0f, 240.0f, 240.0f))
@@ -850,6 +1059,24 @@ EGG DEFINITIONS
 */
 class Egg: Character
     changeTable: table<int; int>
+
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Egg(_level: LevelScene?; _charCode: CharacterCode; _speed: float)
         // Sprite
         setAnchor(1.0f, 1.0f)
@@ -914,6 +1141,23 @@ class Egg: Character
         addAction(moveAnimation)
 
 class Egg01Fire: Egg
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Egg01Fire(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, EGG01, float4(0.0f, 0.0f, 40.0f, 60.0f))
@@ -939,9 +1183,26 @@ class Egg01Fire: Egg
         tempNode->addAction(seq)
         level->addChild(tempNode)
         addAction(new Disappear())
-        tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 50))
+        tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 25))
 
 class Egg02Ice: Egg
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Egg02Ice(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, EGG02, float4(0.0f, 0.0f, 40.0f, 60.0f))
@@ -967,9 +1228,26 @@ class Egg02Ice: Egg
         tempNode->addAction(seq)
         level->addChild(tempNode)
         addAction(new Disappear())
-        tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 50))
+        tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 25))
 
 class Egg03Seed: Egg
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Egg03Seed(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, EGG03, float4(0.0f, 0.0f, 40.0f, 60.0f))
@@ -995,7 +1273,7 @@ class Egg03Seed: Egg
         tempNode->addAction(seq)
         level->addChild(tempNode)
         addAction(new Disappear())
-        tempNode->addAction(new LeafStorm(2.0f, -350.0f, float2(x, y), 20.0f, 100.0f, 50))
+        tempNode->addAction(new LeafStorm(2.0f, -350.0f, float2(x, y), 20.0f, 100.0f, 25))
         
 /*
 =======================================================================================
@@ -1003,6 +1281,23 @@ ENEMY DEFINITIONS
 =======================================================================================
 */
 class Enemy: Character
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy(_level: LevelScene?; _charCode: CharacterCode; _attackType: AttackType; _hp: int; _speed: float; _damage: int; _idleInterval: float; _noticeFront: float; _noticeBack: float; _rangeFront: float; _rangeBack: float)
         // Sprite
         setPosition(LINE_START, LINE_GROUND)
@@ -1133,6 +1428,23 @@ class Enemy: Character
         idle()
 
 class Enemy01Mouse: Enemy
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy01Mouse(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY01, float4(0.0f, 0.0f, 60.0f, 80.0f))
@@ -1179,6 +1491,23 @@ class Enemy01Mouse: Enemy
         attackAnimation->keepOnDisabled()
 
 class Enemy02Moucat: Enemy
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy02Moucat(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY02, float4(0.0f, 0.0f, 76.0f, 80.0f))
@@ -1225,6 +1554,23 @@ class Enemy02Moucat: Enemy
         attackAnimation->keepOnDisabled()
 
 class Enemy03Moubird: Enemy
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy03Moubird(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY03, float4(0.0f, 0.0f, 76.0f, 136.0f))
@@ -1275,6 +1621,23 @@ class Enemy03Moubird: Enemy
         attackAnimation->keepOnDisabled()
 
 class Enemy04Moucroco: Enemy
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy04Moucroco(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY04, float4(0.0f, 0.0f, 84.0f, 80.0f))
@@ -1325,6 +1688,23 @@ class Enemy04Moucroco: Enemy
         attackAnimation->keepOnDisabled()
 
 class Enemy05Mouphant: Enemy
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete idleAnimation
+        unsafe
+            delete moveAnimation
+        unsafe
+            delete attackAnimation
+        unsafe
+            delete dieAnimation
+        unsafe
+            delete takeDamageAnimation
+        unsafe
+            delete image
+
     def Enemy05Mouphant(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, ENEMY05, float4(0.0f, 0.0f, 360.0f, 180.0f))

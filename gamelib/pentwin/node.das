@@ -26,7 +26,13 @@ class Node
         // Remove disabled actions
         var i: int = 0
         while i < actionLists |> length()
-            if actionLists[i].isDisabled
+            if actionLists[i] == null
+                actionLists |> erase(i)
+                i--
+            elif actionLists[i].isDisabled
+                if actionLists[i].deletedOnDisabled
+                    unsafe
+                        delete actionLists[i]
                 actionLists |> erase(i)
                 i--
             i++
@@ -100,13 +106,6 @@ class Node
     def abstract funcCallStored3(): void
     def abstract funcCallStored4(): void
 
-class Rect: Node
-    def override draw(): void
-        pass
-
-    def override update(dt: float): void
-        pass
-
 class Action
     isDisabled: bool = false
     isPaused: bool = false
@@ -130,6 +129,10 @@ class Action
 
 class RepeatForever: Action
     action: Action?
+
+    def finalize
+        unsafe
+            delete action
 
     def RepeatForever(_action: Action?)
         action = _action
@@ -374,6 +377,10 @@ class Disappear: Action
 class FuncCall: Action
     func: lambda<(): void>
 
+    def finalize
+        unsafe
+            delete func
+
     def setFunc(var _func: lambda<(): void>)
         func <- _func
 
@@ -490,7 +497,7 @@ class Parallel: Action
         for action in actions
             unsafe
                 delete action
-                
+
     def addAction(action: Action?): void
         actions |> push(action)
         if action.interval > 0.0f

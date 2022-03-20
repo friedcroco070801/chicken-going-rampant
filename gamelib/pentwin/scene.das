@@ -17,6 +17,14 @@ class ClickOn: Event
     onMouseUp: lambda<(): void>
     node: Node?
 
+    def finalize
+        unsafe
+            delete onMouseDown
+        unsafe
+            delete onMousePress
+        unsafe
+            delete onMouseUp
+
     def ClickOn(_node: Node?)
         node = _node
 
@@ -68,6 +76,8 @@ class Scene
         var i: int = 0
         while i < children |> length()
             if children[i].isRemoved
+                unsafe
+                    delete children[i]
                 children |> erase(i)
                 i--
             i++
@@ -76,6 +86,8 @@ class Scene
         i = 0
         while i < events |> length()
             if events[i].isRemoved
+                unsafe
+                    delete events[i]
                 events |> erase(i)
                 i--
             i++

@@ -4,17 +4,24 @@ require daslib/media
 module sprite public
 
 class Sprite: Node
-    image: ImageHandle
+    image: Image
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
 
+    def finalize
+        for action in actionLists
+            unsafe
+                delete action
+        unsafe
+            delete image
+
     def Sprite(filename: string): void
-        image <- create_managed_image(filename)
+        image <- create_image(filename)
         width = float(image.width)
         height = float(image.height)
         rect = float4(0.0f, 0.0f, width, height)
 
     def Sprite(filename: string; _rect: float4): void
-        image <- create_managed_image(filename)
+        image <- create_image(filename)
         width = float(_rect.z)
         height = float(_rect.w)
         rect = _rect
@@ -27,20 +34,24 @@ class Sprite: Node
             action->draw(self)
 
 class AnimFrame
-    image: ImageHandle
+    image: Image
     width, height: float = 0.0f
     rect: float4 = float4(0.0f, 0.0f, 0.0f, 0.0f)
     interval: float = 0.0f
 
+    def finalize
+        unsafe
+            delete image
+
     def AnimFrame(filename: string; _interval: float): void
-        image <- create_managed_image(filename)
+        image <- create_image(filename)
         width = float(image.width)
         height = float(image.height)
         rect = float4(0.0f, 0.0f, width, height)
         interval = _interval
 
     def AnimFrame(filename: string; _interval: float; _rect: float4): void
-        image <- create_managed_image(filename)
+        image <- create_image(filename)
         width = float(_rect.z)
         height = float(_rect.w)
         rect = _rect

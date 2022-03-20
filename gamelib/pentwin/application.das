@@ -11,6 +11,10 @@ class Application
     scenes: table<string; Scene?>
     curScene: Scene?
 
+    def finalize
+        unsafe
+            delete scenes
+
     def Application(_key: string; _scene: Scene?)
         scenes[_key] = _scene
         curScene = _scene
