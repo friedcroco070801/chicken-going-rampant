@@ -9,6 +9,7 @@ require effect
 require counter
 require unitbar
 require button
+require leveldata
 
 module level public
 
@@ -38,6 +39,8 @@ class LevelScene: Scene
 
     unitBars: array<UnitBar?>
 
+    data: LevelData?
+
     def finalize
         for child in children
             unsafe
@@ -48,6 +51,12 @@ class LevelScene: Scene
         for i in range(worker + 1, workerList |> length())
             unsafe
                 delete workerList[i]
+        unsafe
+            delete data
+
+    def LevelScene()
+        data = new LevelData(1)
+        data.level = 6
 
     def drawBackground(): void
         var backdrop: Sprite? = new Sprite(BACKDROP)
@@ -99,7 +108,7 @@ class LevelScene: Scene
         armyBaseHP->setLeftAligned(false)
         addChild(armyBaseHP)
         
-        enemyBase = new EnemyBase(unsafe(addr(self)), 10)
+        enemyBase = new EnemyBase(unsafe(addr(self)), data.enemyBaseHP)
         addChild(enemyBase)
         enemyList |> push(enemyBase)
 
@@ -214,6 +223,71 @@ class LevelScene: Scene
 
                 unitBars |> push(unitBar)
 
+    def drawButtons(): void
+        var pauseButton: Button? = new Button(BUTTON_PAUSE, BUTTON_PAUSE_CLICKED)
+        pauseButton->setAnchor(1.0f, 0.0f)
+        pauseButton->setPosition(1280.0f - 20.0f, 20.0f)
+        unsafe
+            pauseButton->setFunc() <| @ [[&self]]
+                self->pause()
+
+                var fore: Sprite? = new Sprite(RESULT_FORE)
+                fore->setOpacity(0.7f)
+                self->addChild(fore)
+
+                var center: float2 = float2(640.0f, 360.0f)
+
+                var layer: Sprite? = new Sprite(PAUSE_LAYER)
+                layer->setAnchor(0.5f, 0.5f)
+                layer->setPosition(center.x, center.y)
+                self->addChild(layer)
+                
+                var restart: Button? = new Button(BUTTON_RESTART, BUTTON_RESTART_CLICKED)
+                restart->setAnchor(0.5f, 0.5f)
+                restart->setPosition(center.x, center.y)
+                restart->setFunc() <| @ [[=restart]]
+                    getApplication()->addScene("level", new LevelScene())
+                    getApplication()->changeScene("level")
+                var restartClick: ClickOn? = new ClickOn(restart)
+                restartClick->setOnMouseDown() <| @ [[=restart]]
+                    restart->onClick()
+                self->addChild(restart)
+                self->addEvent(restartClick)
+
+                var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
+                mainmenu->setAnchor(0.5f, 0.5f)
+                mainmenu->setPosition(center.x, center.y + 90.0f)
+                mainmenu->setFunc() <| @ [[=mainmenu]]
+                    getApplication()->addScene("level", new LevelScene())
+                    getApplication()->changeScene("level")
+                var mainClick: ClickOn? = new ClickOn(mainmenu)
+                mainClick->setOnMouseDown() <| @ [[=mainmenu]]
+                    mainmenu->onClick()
+                self->addChild(mainmenu)
+                self->addEvent(mainClick)
+
+                var resumeButton: Button? = new Button(BUTTON_RESUME, BUTTON_RESUME_CLICKED)
+                resumeButton->setAnchor(0.5f, 0.5f)
+                resumeButton->setPosition(center.x, center.y - 90.0f)
+                unsafe
+                    resumeButton->setFunc() <| @ [[=resumeButton, =mainmenu, =restart, =layer, =fore, &self]]
+                        self->resume()
+                        resumeButton->removeFromScene()
+                        mainmenu->removeFromScene()
+                        restart->removeFromScene()
+                        layer->removeFromScene()
+                        fore->removeFromScene()
+                var resumeButtonClick: ClickOn? = new ClickOn(resumeButton)
+                resumeButtonClick->setOnMouseDown() <| @ [[=resumeButton]]
+                    resumeButton->onClick()
+                self->addChild(resumeButton)
+                self->addEvent(resumeButtonClick)
+        var pauseClick: ClickOn? = new ClickOn(pauseButton)
+        pauseClick->setOnMouseDown() <| @ [[=pauseButton]]
+            pauseButton->onClick()
+        addChild(pauseButton)
+        addEvent(pauseClick)
+
     def override initialize(): void
         // Draw backgrounds
         drawBackground()
@@ -230,13 +304,8 @@ class LevelScene: Scene
         // Initialize unit bar
         initializeUnitBar()
 
-        // Test
-        // addArmy(createCharacter(unsafe(addr(self)), 002))
-        // addArmy(new Army07Chilegcold(unsafe(addr(self))))
-        
-        // addEnemy(new Enemy03Moubird(unsafe(addr(self))))
-        addEnemy(createCharacter(unsafe(addr(self)), 205))
-        // addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
+        // Draw pause button
+        drawButtons()
 
     def override update(dt: float): void
         if !isPaused
@@ -254,9 +323,15 @@ class LevelScene: Scene
     def updateLogicPerCs(): void
         if !isPaused
             countTimer++
-            if countTimer == 100
-                addEgg(createCharacter(unsafe(addr(self)), 101))
-                energy = 2000
+            
+            // Enemy spawns
+            var arr: array<int> <- data->updateAndGetEnemiesAt(countTimer)
+            for charCode in arr
+                addEnemy(createCharacter(unsafe(addr(self)), charCode))
+
+            // Gaining energy
+            if countTimer % 10 == 0
+                energy = energy + WORKING_SPEED[worker]
 
             erhh = float(children |> length())
 
@@ -299,6 +374,16 @@ class LevelScene: Scene
                 if isWinner()
                     win()
                     isEndGame = true
+
+    def pause()
+        self->pauseAllEvents()
+        self->pauseAllActions()
+        self.isPaused = true
+
+    def resume()
+        self->resumeAllEvents()
+        self->resumeAllActions()
+        self.isPaused = false
 
     def isWinner(): bool
         return enemyBase->isDead()
@@ -370,30 +455,35 @@ class LevelScene: Scene
                                 var jump1: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 layer->addAction(jump1)
 
-                                var text: Sprite? = new Sprite(MESSAGE_WIN)
+                                var text: Sprite? = new Sprite(data.level < MAX_LEVEL ? MESSAGE_WIN : MESSAGE_COMPLETE)
                                 text->setAnchor(0.5f, 0.5f)
                                 text->setPosition(center.x, center.y - 30.0f + 500.0f)
+                                text->setScale(0.9f, 0.9f)
                                 self->addChild(text)
                                 var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 text->addAction(jump2)
 
-                                var nextLevel: Button? = new Button(BUTTON_NEXTLEVEL, BUTTON_NEXTLEVEL_CLICKED)
-                                nextLevel->setAnchor(0.5f, 0.5f)
-                                nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
-                                nextLevel->setFunc() <| @ [[=nextLevel]]
-                                    getApplication()->addScene("level", new LevelScene())
-                                    getApplication()->changeScene("level")
-                                var nextClick: ClickOn? = new ClickOn(nextLevel)
-                                nextClick->setOnMouseDown() <| @ [[=nextLevel]]
-                                    nextLevel->onClick()
-                                self->addChild(nextLevel)
-                                self->addEvent(nextClick)
-                                var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
-                                nextLevel->addAction(jump3)
+                                if data.level < MAX_LEVEL
+                                    var nextLevel: Button? = new Button(BUTTON_NEXTLEVEL, BUTTON_NEXTLEVEL_CLICKED)
+                                    nextLevel->setAnchor(0.5f, 0.5f)
+                                    nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
+                                    nextLevel->setFunc() <| @ [[=nextLevel]]
+                                        getApplication()->addScene("level", new LevelScene())
+                                        getApplication()->changeScene("level")
+                                    var nextClick: ClickOn? = new ClickOn(nextLevel)
+                                    nextClick->setOnMouseDown() <| @ [[=nextLevel]]
+                                        nextLevel->onClick()
+                                    self->addChild(nextLevel)
+                                    self->addEvent(nextClick)
+                                    var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                    nextLevel->addAction(jump3)
 
                                 var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
                                 mainmenu->setAnchor(0.5f, 0.5f)
-                                mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
+                                if data.level < MAX_LEVEL
+                                    mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
+                                else
+                                    mainmenu->setPosition(center.x, center.y + 30.0f + 500.0f)
                                 mainmenu->setFunc() <| @ [[=mainmenu]]
                                     getApplication()->addScene("level", new LevelScene())
                                     getApplication()->changeScene("level")
@@ -483,6 +573,7 @@ class LevelScene: Scene
                                 var text: Sprite? = new Sprite(MESSAGE_LOSE)
                                 text->setAnchor(0.5f, 0.5f)
                                 text->setPosition(center.x, center.y - 30.0f + 500.0f)
+                                text->setScale(0.9f, 0.9f)
                                 self->addChild(text)
                                 var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 text->addAction(jump2)

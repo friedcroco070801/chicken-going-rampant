@@ -11,8 +11,7 @@ class Button: Sprite
     isClicked: bool = false
 
     def finalize
-        unsafe
-            delete clickFunc
+        pass
 
     def Button(_filename: string; _filenameclicked: string)
         Sprite`Sprite(self, _filename)
@@ -26,8 +25,8 @@ class Button: Sprite
         if !isClicked
             isClicked = true
             var anim: Animation? = new Animation()
-            anim->addFrame(new AnimFrame(filenameclicked, 0.1f))
-            anim->addFrame(new AnimFrame(filename, 0.1f))
+            anim->addFrame(new AnimFrame(filenameclicked, 0.075f))
+            anim->addFrame(new AnimFrame(filename, 0.075f))
             var seq: Sequence? = new Sequence()
             seq->addAction(anim)
             var afterClick: FuncCall? = new FuncCall()

@@ -69,6 +69,7 @@ def preload()
     preloadImage(MESSAGE_LOSE)
     preloadImage(MESSAGE_WIN)
     preloadImage(MESSAGE_COMPLETE)
+    preloadImage(PAUSE_LAYER)
 
 [export]
 def initialize()

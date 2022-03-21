@@ -7,6 +7,7 @@ let shared public
     LINE_GROUND = 540.0f
     MAX_WORKER = 5
     MAX_BAR = 6
+    MAX_LEVEL = 6
 
     JUMP_DIE_HEIGHT = -200.0f
     JUMP_DIE_DELTA_X = 100.0f
@@ -15,6 +16,7 @@ let shared public
 
 var public
     COST_TABLE <- {{1 => 100; 2 => 200; 3 => 300; 4 => 400; 5 => 9999}}
+    WORKING_SPEED <- {{1 => 2; 2 => 4; 3 => 7; 4 => 10; 5 => 15}}
 
 enum public CharacterCode
     NONE = -1
@@ -124,3 +126,5 @@ let shared public
     MESSAGE_LOSE = "gamelib/assets/sprites/gui/text_lose.png"
     MESSAGE_WIN = "gamelib/assets/sprites/gui/text_win.png"
     MESSAGE_COMPLETE = "gamelib/assets/sprites/gui/text_complete.png"
+
+    PAUSE_LAYER = "gamelib/assets/sprites/gui/layer.png"

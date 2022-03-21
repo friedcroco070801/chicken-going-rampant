@@ -1,0 +1,17 @@
+{
+    "enemyBaseHP": 50,
+    "enemies": [
+        {
+            "startTime": 100,
+            "interval": 400,
+            "loop": 5,
+            "code": 201
+        },
+        {
+            "startTime": 900,
+            "interval": 200,
+            "loop": 2,
+            "code": 202
+        }
+    ]
+}
