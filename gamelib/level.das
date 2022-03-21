@@ -2,11 +2,13 @@ require pentwin/scene
 require pentwin/node
 require pentwin/sprite
 require pentwin/utils
+require pentwin/application
 require math
 require constant
 require effect
 require counter
 require unitbar
+require button
 
 module level public
 
@@ -22,6 +24,8 @@ class LevelScene: Scene
 
     armyBase: ArmyBase?
     enemyBase: EnemyBase?
+    armyBaseHP: Counter?
+    enemyBaseHP: Counter?
 
     armyList: array<Character?>
     eggList: array<Character?>
@@ -87,10 +91,23 @@ class LevelScene: Scene
         armyBase = new ArmyBase(unsafe(addr(self)), 10)
         addChild(armyBase)
         armyList |> push(armyBase)
+
+        armyBaseHP = new Counter()
+        armyBaseHP->setPosition(LINE_START - 60.0f + 10.0f, LINE_GROUND - 320.0f)
+        armyBaseHP->setValue(armyBase.hp)
+        armyBaseHP->setFontScale(0.2f)
+        armyBaseHP->setLeftAligned(false)
+        addChild(armyBaseHP)
         
         enemyBase = new EnemyBase(unsafe(addr(self)), 10)
         addChild(enemyBase)
         enemyList |> push(enemyBase)
+
+        enemyBaseHP = new Counter()
+        enemyBaseHP->setPosition(LINE_END + 60.0f - 10.0f, LINE_GROUND - 380.0f)
+        enemyBaseHP->setValue(enemyBase.hp)
+        enemyBaseHP->setFontScale(0.2f)
+        addChild(enemyBaseHP)
 
     def initializeWorkers(): void
         for i in range(0, MAX_WORKER)
@@ -214,11 +231,11 @@ class LevelScene: Scene
         initializeUnitBar()
 
         // Test
-        addArmy(createCharacter(unsafe(addr(self)), 002))
+        // addArmy(createCharacter(unsafe(addr(self)), 002))
         // addArmy(new Army07Chilegcold(unsafe(addr(self))))
         
         // addEnemy(new Enemy03Moubird(unsafe(addr(self))))
-        // addEnemy(createCharacter(unsafe(addr(self)), 204))
+        addEnemy(createCharacter(unsafe(addr(self)), 205))
         // addEnemy(new Enemy05Mouphant(unsafe(addr(self))))
 
     def override update(dt: float): void
@@ -229,13 +246,15 @@ class LevelScene: Scene
                 updateLogicPerCs()
         
         energyBar->setValue(energy)
+        armyBaseHP->setValue(armyBase.hp)
+        enemyBaseHP->setValue(enemyBase.hp)
 
         Scene`update(self, dt)
 
     def updateLogicPerCs(): void
         if !isPaused
             countTimer++
-            if countTimer == 500
+            if countTimer == 100
                 addEgg(createCharacter(unsafe(addr(self)), 101))
                 energy = 2000
 
@@ -289,7 +308,7 @@ class LevelScene: Scene
         var seq: Sequence? = new Sequence()
 
         // Wait
-        seq->addAction(new Wait(3.0f))
+        seq->addAction(new Wait(2.0f))
         
         // Flash and pause
         var flash: FuncCall? = new FuncCall()
@@ -311,25 +330,83 @@ class LevelScene: Scene
                 var victory: FuncCall? = new FuncCall()
                 unsafe
                     victory->setFunc() <| @ [[&self]]
+                        // Fore fading
                         var fore: Sprite? = new Sprite(RESULT_FORE)
                         fore->setOpacity(0.0f)
-                        fore->addAction(new FadeTo(0.5f, 1.0f))
+                        fore->addAction(new FadeTo(0.7f, 1.0f))
                         self->addChild(fore)
 
+                        // Victory titling
                         var victor: Sprite? = new Sprite(RESULT_VICTORY)
                         victor->setOpacity(0.0f)
                         victor->setPosition(640.0f, 360.0f)
                         victor->setAnchor(0.5f, 0.5f)
                         victor->setScale(3.0f, 3.0f)
-                        victor->addAction(new FadeIn(0.3f))
+                        var vicSeq: Sequence? = new Sequence()
+                        vicSeq->addAction(new FadeIn(0.3f))
+                        victor->addAction(vicSeq)
                         victor->addAction(new ScaleBy(float2(0.4f, 0.4f), 0.3f))
                         self->addChild(victor)
 
+                        // Starburst
                         var inSeq: Sequence? = new Sequence()
                         inSeq->addAction(new Wait(0.3f))
                         inSeq->addAction(new StarBurst(2.0f, -100.0f, float2(640.0f, 360.0f), float2(1000.0f, 600.0f), 70))
                         fore->addAction(inSeq)
 
+                        // Victory fadout
+                        vicSeq->addAction(new Wait(1.7f))
+                        vicSeq->addAction(new FadeOut(0.3f))
+
+                        // Pop up message
+                        var messPop: FuncCall? = new FuncCall()
+                        unsafe
+                            messPop->setFunc() <| @ [[&self]]
+                                var center: float2 = float2(640.0f, 360.f)
+                                var layer: Sprite? = new Sprite(MESSAGE_LAYER)
+                                layer->setAnchor(0.5f, 0.5f)
+                                layer->setPosition(center.x, center.y + 500.0f)
+                                self->addChild(layer)
+                                var jump1: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                layer->addAction(jump1)
+
+                                var text: Sprite? = new Sprite(MESSAGE_WIN)
+                                text->setAnchor(0.5f, 0.5f)
+                                text->setPosition(center.x, center.y - 30.0f + 500.0f)
+                                self->addChild(text)
+                                var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                text->addAction(jump2)
+
+                                var nextLevel: Button? = new Button(BUTTON_NEXTLEVEL, BUTTON_NEXTLEVEL_CLICKED)
+                                nextLevel->setAnchor(0.5f, 0.5f)
+                                nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
+                                nextLevel->setFunc() <| @ [[=nextLevel]]
+                                    getApplication()->addScene("level", new LevelScene())
+                                    getApplication()->changeScene("level")
+                                var nextClick: ClickOn? = new ClickOn(nextLevel)
+                                nextClick->setOnMouseDown() <| @ [[=nextLevel]]
+                                    nextLevel->onClick()
+                                self->addChild(nextLevel)
+                                self->addEvent(nextClick)
+                                var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                nextLevel->addAction(jump3)
+
+                                var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
+                                mainmenu->setAnchor(0.5f, 0.5f)
+                                mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
+                                mainmenu->setFunc() <| @ [[=mainmenu]]
+                                    getApplication()->addScene("level", new LevelScene())
+                                    getApplication()->changeScene("level")
+                                var mainClick: ClickOn? = new ClickOn(mainmenu)
+                                mainClick->setOnMouseDown() <| @ [[=mainmenu]]
+                                    mainmenu->onClick()
+                                self->addChild(mainmenu)
+                                self->addEvent(mainClick)
+                                var jump4: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                mainmenu->addAction(jump4)
+                            vicSeq->addAction(messPop)
+
+                        vicSeq->addAction(new Disappear())
                     inSeq->addAction(victory)
 
                 white->addAction(inSeq)
@@ -339,15 +416,116 @@ class LevelScene: Scene
 
         temp->addAction(seq)
         addChild(temp)
-        
 
     def isLoser(): bool
         return armyBase->isDead()
 
     def lose(): void
-        pauseAllEvents()
-        pauseAllActions()
-        isPaused = true
+        var temp: Node? = new Node()
+        var seq: Sequence? = new Sequence()
+
+        // Wait
+        seq->addAction(new Wait(2.0f))
+        
+        // Flash and pause
+        var flash: FuncCall? = new FuncCall()
+        unsafe
+            flash->setFunc() <| @ [[&self]]
+                self->pauseAllEvents()
+                self->pauseAllActions()
+                self.isPaused = true
+
+                var white: Sprite? = new Sprite(RESULT_FLASH)
+                white->setOpacity(0.0f)
+
+                var inSeq: Sequence? = new Sequence()
+                inSeq->addAction(new FadeIn(0.1f))
+                inSeq->addAction(new FadeOut(0.1f))
+                inSeq->addAction(new Wait(1.0f))
+
+                // Fore fade in and defeat
+                var defeat: FuncCall? = new FuncCall()
+                unsafe
+                    defeat->setFunc() <| @ [[&self]]
+                        // Fore fading
+                        var fore: Sprite? = new Sprite(RESULT_FORE)
+                        fore->setOpacity(0.0f)
+                        fore->addAction(new FadeTo(0.7f, 1.0f))
+                        self->addChild(fore)
+
+                        // Lose titling
+                        var victor: Sprite? = new Sprite(RESULT_LOSE)
+                        victor->setOpacity(0.0f)
+                        victor->setPosition(640.0f, 360.0f)
+                        victor->setAnchor(0.5f, 0.5f)
+                        victor->setScale(1.2f, 1.2f)
+                        var vicSeq: Sequence? = new Sequence()
+                        vicSeq->addAction(new FadeIn(0.75f))
+                        victor->addAction(vicSeq)
+                        self->addChild(victor)
+
+                        // Lose fadout
+                        vicSeq->addAction(new Wait(2.0f))
+                        vicSeq->addAction(new FadeOut(0.5f))
+
+                        // Pop up message
+                        var messPop: FuncCall? = new FuncCall()
+                        unsafe
+                            messPop->setFunc() <| @ [[&self]]
+                                var center: float2 = float2(640.0f, 360.f)
+                                var layer: Sprite? = new Sprite(MESSAGE_LAYER)
+                                layer->setAnchor(0.5f, 0.5f)
+                                layer->setPosition(center.x, center.y + 500.0f)
+                                self->addChild(layer)
+                                var jump1: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                layer->addAction(jump1)
+
+                                var text: Sprite? = new Sprite(MESSAGE_LOSE)
+                                text->setAnchor(0.5f, 0.5f)
+                                text->setPosition(center.x, center.y - 30.0f + 500.0f)
+                                self->addChild(text)
+                                var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                text->addAction(jump2)
+
+                                var restartLevel: Button? = new Button(BUTTON_RESTART, BUTTON_RESTART_CLICKED)
+                                restartLevel->setAnchor(0.5f, 0.5f)
+                                restartLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
+                                restartLevel->setFunc() <| @ [[=restartLevel]]
+                                    getApplication()->addScene("level", new LevelScene())
+                                    getApplication()->changeScene("level")
+                                var nextClick: ClickOn? = new ClickOn(restartLevel)
+                                nextClick->setOnMouseDown() <| @ [[=restartLevel]]
+                                    restartLevel->onClick()
+                                self->addChild(restartLevel)
+                                self->addEvent(nextClick)
+                                var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                restartLevel->addAction(jump3)
+
+                                var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
+                                mainmenu->setAnchor(0.5f, 0.5f)
+                                mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
+                                mainmenu->setFunc() <| @ [[=mainmenu]]
+                                    getApplication()->addScene("level", new LevelScene())
+                                    getApplication()->changeScene("level")
+                                var mainClick: ClickOn? = new ClickOn(mainmenu)
+                                mainClick->setOnMouseDown() <| @ [[=mainmenu]]
+                                    mainmenu->onClick()
+                                self->addChild(mainmenu)
+                                self->addEvent(mainClick)
+                                var jump4: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
+                                mainmenu->addAction(jump4)
+                            vicSeq->addAction(messPop)
+
+                        vicSeq->addAction(new Disappear())
+                    inSeq->addAction(defeat)
+
+                white->addAction(inSeq)
+
+                self->addChild(white)
+            seq->addAction(flash)
+
+        temp->addAction(seq)
+        addChild(temp)
 
 class Character: Sprite
     level: LevelScene?
@@ -1849,7 +2027,7 @@ class Enemy05Mouphant: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY05, float4(0.0f, 0.0f, 360.0f, 180.0f))
         setAnchor(0.334f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E05_ELEPHANT, AttackType AREA, 150, 20.0f, 30, 5.0f, 120.0f, -30.0f, 120.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E05_ELEPHANT, AttackType AREA, 150, 200.0f, 30, 5.0f, 120.0f, -30.0f, 120.0f, -30.0f)
 
         // Animation
         // Move

@@ -52,9 +52,12 @@ let shared public
     CLOUD = "gamelib/assets/sprites/background/cloud.png"
     MOUNTAIN = "gamelib/assets/sprites/background/mountain.png"
     TREE = "gamelib/assets/sprites/background/tree.png"
+
     ARMY_BASE = "gamelib/assets/sprites/tower/base.png"
     ENEMY_BASE = "gamelib/assets/sprites/tower/enemy.png"
+
     WORKER = "gamelib/assets/sprites/character/worker.png"
+
     ARMY01 = "gamelib/assets/sprites/character/a01.png"
     ARMY02 = "gamelib/assets/sprites/character/a02.png"
     ARMY03 = "gamelib/assets/sprites/character/a03.png"
@@ -62,19 +65,24 @@ let shared public
     ARMY05 = "gamelib/assets/sprites/character/a05.png"
     ARMY06 = "gamelib/assets/sprites/character/a06.png"
     ARMY07 = "gamelib/assets/sprites/character/a07.png"
+
     ENEMY01 = "gamelib/assets/sprites/character/e01.png"
     ENEMY02 = "gamelib/assets/sprites/character/e02.png"
     ENEMY03 = "gamelib/assets/sprites/character/e03.png"
     ENEMY04 = "gamelib/assets/sprites/character/e04.png"
     ENEMY05 = "gamelib/assets/sprites/character/e05.png"
+
     EGG01 = "gamelib/assets/sprites/character/b01.png"
     EGG02 = "gamelib/assets/sprites/character/b02.png"
     EGG03 = "gamelib/assets/sprites/character/b03.png"
+
     FIRE_EFFECT = "gamelib/assets/sprites/effect/fire.png"
     ICE_EFFECT = "gamelib/assets/sprites/effect/ice.png"
     LEAF_EFFECT = "gamelib/assets/sprites/effect/leaf.png"
     EXPLODE_EFFECT = "gamelib/assets/sprites/effect/explode.png"
+
     NUMBER_FONT = "gamelib/assets/sprites/utils/number.png"
+
     BAR_BASE = "gamelib/assets/sprites/bar/base.png"
     BAR_BOMB = "gamelib/assets/sprites/bar/bomb.png"
     BAR_NORMAL = "gamelib/assets/sprites/bar/normal.png"
@@ -82,12 +90,37 @@ let shared public
     BAR_ICE = "gamelib/assets/sprites/bar/ice.png"
     BAR_LEAF = "gamelib/assets/sprites/bar/seed.png"
     BAR_WORKER = "gamelib/assets/sprites/bar/worker.png"
+
     BAR_RECHARGE = "gamelib/assets/sprites/bar/recharge.png"
     BAR_FLASH = "gamelib/assets/sprites/bar/flash.png"
     BAR_LOCK = "gamelib/assets/sprites/bar/lock.png"
+
     ENERGY_BAR = "gamelib/assets/sprites/bar/counter.png"
+
     RESULT_FLASH = "gamelib/assets/sprites/result/flash_bg.jpg"
     RESULT_FORE = "gamelib/assets/sprites/result/fore_bg.jpg"
     RESULT_LOSE = "gamelib/assets/sprites/result/lose_noti.png"
     RESULT_VICTORY = "gamelib/assets/sprites/result/victory_noti.png"
     EFFECT_STAR = "gamelib/assets/sprites/result/star.png"
+    
+    BUTTON_BACK = "gamelib/assets/sprites/gui/back.png"
+    BUTTON_CANCEL = "gamelib/assets/sprites/gui/cancel.png"
+    BUTTON_MAINMENU = "gamelib/assets/sprites/gui/mainmenu.png"
+    BUTTON_NEXTLEVEL = "gamelib/assets/sprites/gui/nextlevel.png"
+    BUTTON_OKAY = "gamelib/assets/sprites/gui/okay.png"
+    BUTTON_PAUSE = "gamelib/assets/sprites/gui/pause.png"
+    BUTTON_RESTART = "gamelib/assets/sprites/gui/restart.png"
+    BUTTON_RESUME = "gamelib/assets/sprites/gui/resume.png"
+    BUTTON_BACK_CLICKED = "gamelib/assets/sprites/gui/back_clicked.png"
+    BUTTON_CANCEL_CLICKED = "gamelib/assets/sprites/gui/cancel_clicked.png"
+    BUTTON_MAINMENU_CLICKED = "gamelib/assets/sprites/gui/mainmenu_clicked.png"
+    BUTTON_NEXTLEVEL_CLICKED = "gamelib/assets/sprites/gui/nextlevel_clicked.png"
+    BUTTON_OKAY_CLICKED = "gamelib/assets/sprites/gui/okay_clicked.png"
+    BUTTON_PAUSE_CLICKED = "gamelib/assets/sprites/gui/pause_clicked.png"
+    BUTTON_RESTART_CLICKED = "gamelib/assets/sprites/gui/restart_clicked.png"
+    BUTTON_RESUME_CLICKED = "gamelib/assets/sprites/gui/resume_clicked.png"
+
+    MESSAGE_LAYER = "gamelib/assets/sprites/gui/text_layer_base.png"
+    MESSAGE_LOSE = "gamelib/assets/sprites/gui/text_lose.png"
+    MESSAGE_WIN = "gamelib/assets/sprites/gui/text_win.png"
+    MESSAGE_COMPLETE = "gamelib/assets/sprites/gui/text_complete.png"
