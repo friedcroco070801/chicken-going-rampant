@@ -106,6 +106,16 @@ class Node
     def abstract funcCallStored3(): void
     def abstract funcCallStored4(): void
 
+class Rectangle: Node
+    def Rectangle(_width: float; _height: float; _color: uint)
+        width = _width
+        height = _height
+        tint = _color
+    
+    def override draw(): void
+        fill_rect(x - anchorX * width * scaleX, y - anchorY * height * scaleY, width * scaleX, height * scaleY, tint)
+        Node`draw(self)
+
 class Action
     isDisabled: bool = false
     isPaused: bool = false

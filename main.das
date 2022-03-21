@@ -1,5 +1,7 @@
 require daslib/media
 require gamelib/level
+require gamelib/router
+require gamelib/title
 require gamelib/pentwin/application
 require gamelib/pentwin/spritepool
 require gamelib/constant
@@ -71,6 +73,13 @@ def preload()
     preloadImage(MESSAGE_WIN)
     preloadImage(MESSAGE_COMPLETE)
     preloadImage(PAUSE_LAYER)
+    preloadImage(LOCK_LEVEL)
+    preloadImage(LOGO)
+    preloadImage(INSTRUCTION)
+    preloadImage(INTRO)
+    for i in range(1, 7)
+        preloadImage(LEVEL_BUTTON(i))
+        preloadImage(LEVEL_BUTTON_CLICKED(i))
 
 [export]
 def initialize()
@@ -82,7 +91,8 @@ def initialize()
     getUserData() = new UserData()
     getUserData()->loadData()
 
-    getApplication() = new Application("level", new LevelScene())
+    getApplication() = new Application("title", new TitleScene())
+    getApplication()->addScene("router", new RouterScene())
 
 [export]
 def act(dt: float)
@@ -92,5 +102,3 @@ def act(dt: float)
 def draw()
     enable_alpha_blend()
     getApplication()->draw()
-
-    text_out(80, 20, "debug({erhh})", 0xff000000)

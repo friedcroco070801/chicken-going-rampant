@@ -118,6 +118,12 @@ class Scene
             events[i].isRemoved = true
             i++
 
+    def removeAllChildren(): void
+        var i: int = 0
+        while i < children |> length()
+            children[i].isRemoved = true
+            i++
+
     def pauseAllEvents(): void
         var i: int = 0
         while i < events |> length()

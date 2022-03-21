@@ -19,18 +19,21 @@ class UserData
         let filename = "gamelib/data/user.data"
 
         fopen(filename, "rb") <| $ (f)
-            fread(f) <| $ (data)
-                var error = ""
-                var json = read_json(data, error)
-                if json == null
-                    panic("failed to parse {filename}, {error}\n")
-                else
-                    level = int((json as _object)["level"] as _number)
-                    var charArr: array<JsonValue?> <- ((json as _object)["chars"] as _array)
-                    for char in charArr
-                        chars |> push(int(char as _number))
-                unsafe
-                    string_heap_collect()
+            if f != null
+                fread(f) <| $ (data)
+                    var error = ""
+                    var json = read_json(data, error)
+                    if json == null
+                        panic("failed to parse {filename}, {error}\n")
+                    else
+                        level = int((json as _object)["level"] as _number)
+                        var charArr: array<JsonValue?> <- ((json as _object)["chars"] as _array)
+                        for char in charArr
+                            chars |> push(int(char as _number))
+                    unsafe
+                        string_heap_collect()
+            else
+                chars |> push(001)
 
     def saveData()
         // Read json

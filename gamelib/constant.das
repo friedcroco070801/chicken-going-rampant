@@ -128,3 +128,15 @@ let shared public
     MESSAGE_COMPLETE = "gamelib/assets/sprites/gui/text_complete.png"
 
     PAUSE_LAYER = "gamelib/assets/sprites/gui/layer.png"
+
+    LOCK_LEVEL = "gamelib/assets/sprites/gui/level/level_button_lock.png"
+
+    LOGO = "gamelib/assets/sprites/logo/logo.png"
+    INSTRUCTION = "gamelib/assets/sprites/utils/instruction.png"
+    INTRO = "gamelib/assets/sprites/utils/intro.png"
+
+def LEVEL_BUTTON(level: int): string
+    return "gamelib/assets/sprites/gui/level/numberic{level}.png"
+
+def LEVEL_BUTTON_CLICKED(level: int): string
+    return "gamelib/assets/sprites/gui/level/numberic{level}_clicked.png"

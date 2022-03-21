@@ -14,8 +14,6 @@ require userdata
 
 module level public
 
-var erhh: float = 0.0f
-
 class LevelScene: Scene
     timer: float = 0.0f
     countTimer: int = 0 // number of centisecs
@@ -55,8 +53,8 @@ class LevelScene: Scene
         unsafe
             delete data
 
-    def LevelScene()
-        data = new LevelData(1)
+    def LevelScene(_level: int)
+        data = new LevelData(_level)
 
     def drawBackground(): void
         var backdrop: Sprite? = new Sprite(BACKDROP)
@@ -97,12 +95,12 @@ class LevelScene: Scene
         addChild(ground)
 
     def initializeBases(): void
-        armyBase = new ArmyBase(unsafe(addr(self)), 10)
+        armyBase = new ArmyBase(unsafe(addr(self)), 50)
         addChild(armyBase)
         armyList |> push(armyBase)
 
         armyBaseHP = new Counter()
-        armyBaseHP->setPosition(LINE_START - 60.0f + 10.0f, LINE_GROUND - 320.0f)
+        armyBaseHP->setPosition(LINE_START - 60.0f + 20.0f, LINE_GROUND - 320.0f)
         armyBaseHP->setValue(armyBase.hp)
         armyBaseHP->setFontScale(0.2f)
         armyBaseHP->setLeftAligned(false)
@@ -113,7 +111,7 @@ class LevelScene: Scene
         enemyList |> push(enemyBase)
 
         enemyBaseHP = new Counter()
-        enemyBaseHP->setPosition(LINE_END + 60.0f - 10.0f, LINE_GROUND - 380.0f)
+        enemyBaseHP->setPosition(LINE_END + 60.0f - 20.0f, LINE_GROUND - 380.0f)
         enemyBaseHP->setValue(enemyBase.hp)
         enemyBaseHP->setFontScale(0.2f)
         addChild(enemyBaseHP)
@@ -164,7 +162,7 @@ class LevelScene: Scene
 
         energyBar = new Counter()
         energyBar->setPosition(240.0f, 61.0f)
-        energyBar->setValue(9999)
+        energyBar->setValue(0)
         energyBar->setFontScale(0.5f)
         energyBar->setLeftAligned(false)
         addChild(energyBar)
@@ -246,8 +244,8 @@ class LevelScene: Scene
                 restart->setAnchor(0.5f, 0.5f)
                 restart->setPosition(center.x, center.y)
                 restart->setFunc() <| @ [[=restart]]
-                    getApplication()->addScene("level", new LevelScene())
-                    getApplication()->changeScene("level")
+                    getApplication()->addScene("level", new LevelScene(data.level))
+                    getApplication()->changeSceneWithFading("level", 0.5f)
                 var restartClick: ClickOn? = new ClickOn(restart)
                 restartClick->setOnMouseDown() <| @ [[=restart]]
                     restart->onClick()
@@ -258,8 +256,8 @@ class LevelScene: Scene
                 mainmenu->setAnchor(0.5f, 0.5f)
                 mainmenu->setPosition(center.x, center.y + 90.0f)
                 mainmenu->setFunc() <| @ [[=mainmenu]]
-                    getApplication()->addScene("level", new LevelScene())
-                    getApplication()->changeScene("level")
+                    // getApplication()->addScene("level", new LevelScene(data.level))
+                    getApplication()->changeSceneWithFading("router", 0.5f)
                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                     mainmenu->onClick()
@@ -332,8 +330,6 @@ class LevelScene: Scene
             // Gaining energy
             if countTimer % 10 == 0
                 energy = energy + WORKING_SPEED[worker]
-
-            erhh = float(children |> length())
 
             // Remove dead characters
             var i: int = 0
@@ -468,8 +464,8 @@ class LevelScene: Scene
                                     nextLevel->setAnchor(0.5f, 0.5f)
                                     nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
                                     nextLevel->setFunc() <| @ [[=nextLevel]]
-                                        getApplication()->addScene("level", new LevelScene())
-                                        getApplication()->changeScene("level")
+                                        getApplication()->addScene("level", new LevelScene(data.level + 1))
+                                        getApplication()->changeSceneWithFading("level", 0.5f)
                                     var nextClick: ClickOn? = new ClickOn(nextLevel)
                                     nextClick->setOnMouseDown() <| @ [[=nextLevel]]
                                         nextLevel->onClick()
@@ -485,8 +481,8 @@ class LevelScene: Scene
                                 else
                                     mainmenu->setPosition(center.x, center.y + 30.0f + 500.0f)
                                 mainmenu->setFunc() <| @ [[=mainmenu]]
-                                    getApplication()->addScene("level", new LevelScene())
-                                    getApplication()->changeScene("level")
+                                    // getApplication()->addScene("level", new LevelScene(data.level))
+                                    getApplication()->changeSceneWithFading("router", 0.5f)
                                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                                     mainmenu->onClick()
@@ -588,8 +584,8 @@ class LevelScene: Scene
                                 restartLevel->setAnchor(0.5f, 0.5f)
                                 restartLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
                                 restartLevel->setFunc() <| @ [[=restartLevel]]
-                                    getApplication()->addScene("level", new LevelScene())
-                                    getApplication()->changeScene("level")
+                                    getApplication()->addScene("level", new LevelScene(data.level))
+                                    getApplication()->changeSceneWithFading("level", 0.5f)
                                 var nextClick: ClickOn? = new ClickOn(restartLevel)
                                 nextClick->setOnMouseDown() <| @ [[=restartLevel]]
                                     restartLevel->onClick()
@@ -602,8 +598,8 @@ class LevelScene: Scene
                                 mainmenu->setAnchor(0.5f, 0.5f)
                                 mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
                                 mainmenu->setFunc() <| @ [[=mainmenu]]
-                                    getApplication()->addScene("level", new LevelScene())
-                                    getApplication()->changeScene("level")
+                                    // getApplication()->addScene("level", new LevelScene(data.level))
+                                    getApplication()->changeSceneWithFading("router", 0.5f)
                                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                                     mainmenu->onClick()
