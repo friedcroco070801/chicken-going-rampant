@@ -10,6 +10,7 @@ require counter
 require unitbar
 require button
 require leveldata
+require userdata
 
 module level public
 
@@ -56,7 +57,6 @@ class LevelScene: Scene
 
     def LevelScene()
         data = new LevelData(1)
-        data.level = 6
 
     def drawBackground(): void
         var backdrop: Sprite? = new Sprite(BACKDROP)
@@ -192,7 +192,7 @@ class LevelScene: Scene
         addEvent(clickWorker)
 
         // Add army unit bar
-        let avail <- [[auto 001; 101; 102; 103; 005]]
+        var avail := getUserData().chars
         for i in range(0, MAX_BAR - 1)
             if i < avail |> length()
                 var code: int = avail[i]
@@ -507,6 +507,12 @@ class LevelScene: Scene
         temp->addAction(seq)
         addChild(temp)
 
+        // Save data
+        getUserData().level++
+        if getUserData().chars |> find_index(data.reward) == -1
+            getUserData().chars |> push(data.reward)
+            getUserData()->saveData()
+
     def isLoser(): bool
         return armyBase->isDead()
 
@@ -644,6 +650,8 @@ class Character: Sprite
     dieAnimation: Action?
     takeDamageAnimation: Action?
 
+    dieOnce: bool = false
+
     def finalize
         for action in actionLists
             unsafe
@@ -674,12 +682,14 @@ class Character: Sprite
         pass
 
     def animateDie(): void
-        pauseAllActions()
-        dieAnimation->reset()
-        addAction(dieAnimation)
+        if !dieOnce
+            pauseAllActions()
+            dieAnimation->reset()
+            addAction(dieAnimation)
+            dieOnce = true
 
     def animateTakeDamage(): void
-        if takeDamageAnimation?.isDisabled ?? false
+        if takeDamageAnimation?.isDisabled ?? false && !isDead()
             takeDamageAnimation->reset()
             addAction(takeDamageAnimation)
 
@@ -793,7 +803,7 @@ class ArmyBase: TowerBase
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 50))
+        tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 150))
 
 class EnemyBase: TowerBase
     def finalize
@@ -838,7 +848,7 @@ class EnemyBase: TowerBase
         var tempNode: Node? = new Node()
         tempNode->addAction(seq)
         level->addChild(tempNode)
-        tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 50))
+        tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 150))
 
 /*
 =======================================================================================
@@ -927,33 +937,34 @@ class Army: Character
                 target->takeDamage(damage)
 
     def override updateLogicPerCs(): void
-        var hasEnemy: bool = checkHasEnemy()
+        if !isDead()
+            var hasEnemy: bool = checkHasEnemy()
 
-        // Change state
-        // Idle --> Move
-        if !hasEnemy && charState == CharacterState IDLING
-            move()
-        
-        // Idle --> Idle
-        if idleTimer > 0.0f && hasEnemy && charState == CharacterState IDLING
-            idleTimer = idleTimer - CENTISEC
+            // Change state
+            // Idle --> Move
+            if !hasEnemy && charState == CharacterState IDLING
+                move()
+            
+            // Idle --> Idle
+            if idleTimer > 0.0f && hasEnemy && charState == CharacterState IDLING
+                idleTimer = idleTimer - CENTISEC
 
-        // Idle --> Attack
-        if idleTimer <= 0.0f && hasEnemy && charState == CharacterState IDLING
-            attack()
+            // Idle --> Attack
+            if idleTimer <= 0.0f && hasEnemy && charState == CharacterState IDLING
+                attack()
 
-        // Move --> Idle
-        if idleTimer > 0.0f && hasEnemy && charState == CharacterState MOVING
-            idleTimer = idleTimer - CENTISEC
-            idle()
+            // Move --> Idle
+            if idleTimer > 0.0f && hasEnemy && charState == CharacterState MOVING
+                idleTimer = idleTimer - CENTISEC
+                idle()
 
-        // Move --> Attack
-        if idleTimer <= 0.0f && hasEnemy && charState == CharacterState MOVING
-            attack()
+            // Move --> Attack
+            if idleTimer <= 0.0f && hasEnemy && charState == CharacterState MOVING
+                attack()
 
-        // Change position when moving
-        if !isDead() && charState == CharacterState MOVING
-            x = min(x + speed * CENTISEC, LINE_END)
+            // Change position when moving
+            if !isDead() && charState == CharacterState MOVING
+                x = min(x + speed * CENTISEC, LINE_END)
 
     def override idle(): void
         charState = CharacterState IDLING
@@ -1771,33 +1782,34 @@ class Enemy: Character
                 target->takeDamage(damage)
 
     def override updateLogicPerCs(): void
-        var hasEnemy: bool = checkHasArmy()
+        if !isDead()
+            var hasEnemy: bool = checkHasArmy()
 
-        // Change state
-        // Idle --> Move
-        if !hasEnemy && charState == CharacterState IDLING
-            move()
-        
-        // Idle --> Idle
-        if idleTimer > 0.0f && hasEnemy && charState == CharacterState IDLING
-            idleTimer = idleTimer - CENTISEC
+            // Change state
+            // Idle --> Move
+            if !hasEnemy && charState == CharacterState IDLING
+                move()
+            
+            // Idle --> Idle
+            if idleTimer > 0.0f && hasEnemy && charState == CharacterState IDLING
+                idleTimer = idleTimer - CENTISEC
 
-        // Idle --> Attack
-        if idleTimer <= 0.0f && hasEnemy && charState == CharacterState IDLING
-            attack()
+            // Idle --> Attack
+            if idleTimer <= 0.0f && hasEnemy && charState == CharacterState IDLING
+                attack()
 
-        // Move --> Idle
-        if idleTimer > 0.0f && hasEnemy && charState == CharacterState MOVING
-            idleTimer = idleTimer - CENTISEC
-            idle()
+            // Move --> Idle
+            if idleTimer > 0.0f && hasEnemy && charState == CharacterState MOVING
+                idleTimer = idleTimer - CENTISEC
+                idle()
 
-        // Move --> Attack
-        if idleTimer <= 0.0f && hasEnemy && charState == CharacterState MOVING
-            attack()
+            // Move --> Attack
+            if idleTimer <= 0.0f && hasEnemy && charState == CharacterState MOVING
+                attack()
 
-        // Change position when moving
-        if !isDead() && charState == CharacterState MOVING
-            x = max(x - speed * CENTISEC, LINE_START)
+            // Change position when moving
+            if !isDead() && charState == CharacterState MOVING
+                x = max(x - speed * CENTISEC, LINE_START)
 
     def override idle(): void
         charState = CharacterState IDLING

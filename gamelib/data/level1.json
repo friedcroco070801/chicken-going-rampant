@@ -1,5 +1,6 @@
 {
     "enemyBaseHP": 50,
+    "reward": 101,
     "enemies": [
         {
             "startTime": 100,

@@ -20,6 +20,7 @@ class LevelData
     level: int = 1
     enemyBaseHP: int = 0
     enemies: array<EnemyData?>
+    reward: int
 
     def finalize
         for enemy in enemies
@@ -40,6 +41,7 @@ class LevelData
                     panic("failed to parse {filename}, {error}\n")
                 else
                     enemyBaseHP = int((json as _object)["enemyBaseHP"] as _number)
+                    reward = int((json as _object)["reward"] as _number)
                     var enemyArr: array<JsonValue?> <- ((json as _object)["enemies"] as _array)
                     for enemy in enemyArr
                         let startTime = int((enemy as _object)["startTime"] as _number)

@@ -3,6 +3,7 @@ require gamelib/level
 require gamelib/pentwin/application
 require gamelib/pentwin/spritepool
 require gamelib/constant
+require gamelib/userdata
 
 def preload()
     preloadImage(BACKDROP)
@@ -77,6 +78,9 @@ def initialize()
     set_resolution(1280, 720)
 
     preload()
+
+    getUserData() = new UserData()
+    getUserData()->loadData()
 
     getApplication() = new Application("level", new LevelScene())
 
