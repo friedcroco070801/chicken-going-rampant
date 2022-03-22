@@ -1,11 +1,13 @@
 require daslib/media
-require gamelib/level
 require gamelib/router
 require gamelib/title
+require gamelib/intro
 require gamelib/pentwin/application
 require gamelib/pentwin/spritepool
+require gamelib/pentwin/soundpool
 require gamelib/constant
 require gamelib/userdata
+require gamelib/info
 
 def preload()
     preloadImage(BACKDROP)
@@ -77,9 +79,27 @@ def preload()
     preloadImage(LOGO)
     preloadImage(INSTRUCTION)
     preloadImage(INTRO)
+    preloadImage(LEVEL_INFO_LAYER)
     for i in range(1, 7)
         preloadImage(LEVEL_BUTTON(i))
         preloadImage(LEVEL_BUTTON_CLICKED(i))
+        for j in range(0, 2)
+            preloadImage(LEVEL_INFO(i, j))
+
+    preloadSound(BUTTON_CLICKED_SOUND)
+    preloadSound(UNIT_CLICKED_SOUND)
+    preloadSound(UNIT_RECHARGED_SOUND)
+    preloadSound(DAMAGE_SOUND)
+    preloadSound(EXPLOSION_SOUND)
+    preloadSound(FIRE_SOUND)
+    preloadSound(ICE_SOUND)
+    preloadSound(SEED_SOUND)
+    preloadSound(VICTORY_SOUND)
+
+    preloadSound(TITLE_MUSIC)
+    preloadSound(GAME_MUSIC)
+    preloadSound(ROUTER_MUSIC)
+    preloadSound(AFTER_LEVEL_MUSIC)
 
 [export]
 def initialize()
@@ -91,7 +111,8 @@ def initialize()
     getUserData() = new UserData()
     getUserData()->loadData()
 
-    getApplication() = new Application("title", new TitleScene())
+    getApplication() = new Application("intro", new IntroScene())
+    getApplication()->addScene("title", new TitleScene())
     getApplication()->addScene("router", new RouterScene())
 
 [export]

@@ -8,9 +8,10 @@ require constant
 require effect
 require counter
 require unitbar
-require button
+require pentwin/button
 require leveldata
 require userdata
+require pentwin/soundpool
 
 module level public
 
@@ -249,6 +250,7 @@ class LevelScene: Scene
                 var restartClick: ClickOn? = new ClickOn(restart)
                 restartClick->setOnMouseDown() <| @ [[=restart]]
                     restart->onClick()
+                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                 self->addChild(restart)
                 self->addEvent(restartClick)
 
@@ -261,6 +263,7 @@ class LevelScene: Scene
                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                     mainmenu->onClick()
+                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                 self->addChild(mainmenu)
                 self->addEvent(mainClick)
 
@@ -278,11 +281,13 @@ class LevelScene: Scene
                 var resumeButtonClick: ClickOn? = new ClickOn(resumeButton)
                 resumeButtonClick->setOnMouseDown() <| @ [[=resumeButton]]
                     resumeButton->onClick()
+                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                 self->addChild(resumeButton)
                 self->addEvent(resumeButtonClick)
         var pauseClick: ClickOn? = new ClickOn(pauseButton)
         pauseClick->setOnMouseDown() <| @ [[=pauseButton]]
             pauseButton->onClick()
+            getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
         addChild(pauseButton)
         addEvent(pauseClick)
 
@@ -304,6 +309,8 @@ class LevelScene: Scene
 
         // Draw pause button
         drawButtons()
+
+        getSoundPool()->playBackground(GAME_MUSIC)
 
     def override update(dt: float): void
         if !isPaused
@@ -329,7 +336,7 @@ class LevelScene: Scene
 
             // Gaining energy
             if countTimer % 10 == 0
-                energy = energy + WORKING_SPEED[worker]
+                energy = min(energy + WORKING_SPEED[worker], 9999)
 
             // Remove dead characters
             var i: int = 0
@@ -398,6 +405,7 @@ class LevelScene: Scene
                 self->pauseAllEvents()
                 self->pauseAllActions()
                 self.isPaused = true
+                getSoundPool()->stopBackgroundMusic()
 
                 var white: Sprite? = new Sprite(RESULT_FLASH)
                 white->setOpacity(0.0f)
@@ -411,6 +419,9 @@ class LevelScene: Scene
                 var victory: FuncCall? = new FuncCall()
                 unsafe
                     victory->setFunc() <| @ [[&self]]
+                        getSoundPool()->playEffect(VICTORY_SOUND)
+                        getSoundPool()->playBackground(AFTER_LEVEL_MUSIC)
+
                         // Fore fading
                         var fore: Sprite? = new Sprite(RESULT_FORE)
                         fore->setOpacity(0.0f)
@@ -459,16 +470,17 @@ class LevelScene: Scene
                                 var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 text->addAction(jump2)
 
-                                if data.level < MAX_LEVEL
+                                if data.level == getUserData().level
                                     var nextLevel: Button? = new Button(BUTTON_NEXTLEVEL, BUTTON_NEXTLEVEL_CLICKED)
                                     nextLevel->setAnchor(0.5f, 0.5f)
                                     nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
                                     nextLevel->setFunc() <| @ [[=nextLevel]]
-                                        getApplication()->addScene("level", new LevelScene(data.level + 1))
-                                        getApplication()->changeSceneWithFading("level", 0.5f)
+                                        // getApplication()->addScene("level", new LevelScene(data.level + 1))
+                                        getApplication()->changeSceneWithFading("info{data.level + 1}", 0.5f)
                                     var nextClick: ClickOn? = new ClickOn(nextLevel)
                                     nextClick->setOnMouseDown() <| @ [[=nextLevel]]
                                         nextLevel->onClick()
+                                        getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                                     self->addChild(nextLevel)
                                     self->addEvent(nextClick)
                                     var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
@@ -476,7 +488,7 @@ class LevelScene: Scene
 
                                 var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
                                 mainmenu->setAnchor(0.5f, 0.5f)
-                                if data.level < MAX_LEVEL
+                                if data.level == getUserData().level
                                     mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
                                 else
                                     mainmenu->setPosition(center.x, center.y + 30.0f + 500.0f)
@@ -486,10 +498,19 @@ class LevelScene: Scene
                                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                                     mainmenu->onClick()
+                                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                                 self->addChild(mainmenu)
                                 self->addEvent(mainClick)
                                 var jump4: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 mainmenu->addAction(jump4)
+
+                                // Save data
+                                if data.level == getUserData().level
+                                    getUserData().level++ 
+                                if getUserData().chars |> find_index(data.reward) == -1
+                                    getUserData().chars |> push(data.reward)
+                                getUserData()->saveData()
+
                             vicSeq->addAction(messPop)
 
                         vicSeq->addAction(new Disappear())
@@ -502,12 +523,6 @@ class LevelScene: Scene
 
         temp->addAction(seq)
         addChild(temp)
-
-        // Save data
-        getUserData().level++
-        if getUserData().chars |> find_index(data.reward) == -1
-            getUserData().chars |> push(data.reward)
-            getUserData()->saveData()
 
     def isLoser(): bool
         return armyBase->isDead()
@@ -526,6 +541,7 @@ class LevelScene: Scene
                 self->pauseAllEvents()
                 self->pauseAllActions()
                 self.isPaused = true
+                getSoundPool()->stopBackgroundMusic()
 
                 var white: Sprite? = new Sprite(RESULT_FLASH)
                 white->setOpacity(0.0f)
@@ -539,6 +555,8 @@ class LevelScene: Scene
                 var defeat: FuncCall? = new FuncCall()
                 unsafe
                     defeat->setFunc() <| @ [[&self]]
+                        getSoundPool()->playBackground(AFTER_LEVEL_MUSIC)
+
                         // Fore fading
                         var fore: Sprite? = new Sprite(RESULT_FORE)
                         fore->setOpacity(0.0f)
@@ -589,6 +607,7 @@ class LevelScene: Scene
                                 var nextClick: ClickOn? = new ClickOn(restartLevel)
                                 nextClick->setOnMouseDown() <| @ [[=restartLevel]]
                                     restartLevel->onClick()
+                                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                                 self->addChild(restartLevel)
                                 self->addEvent(nextClick)
                                 var jump3: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
@@ -603,6 +622,7 @@ class LevelScene: Scene
                                 var mainClick: ClickOn? = new ClickOn(mainmenu)
                                 mainClick->setOnMouseDown() <| @ [[=mainmenu]]
                                     mainmenu->onClick()
+                                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                                 self->addChild(mainmenu)
                                 self->addEvent(mainClick)
                                 var jump4: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
@@ -705,6 +725,7 @@ class Character: Sprite
         if _dam <= 0
             return
         hp = max(hp - _dam, 0)
+        getSoundPool()->playEffect(DAMAGE_SOUND)
         animateTakeDamage()
         if isDead()
             die()
@@ -801,6 +822,8 @@ class ArmyBase: TowerBase
         level->addChild(tempNode)
         tempNode->addAction(new Explosion(5.0f, float2(x - 60.0f, y - 60.0f), 80.0f, 150))
 
+        getSoundPool()->playEffect(EXPLOSION_SOUND)
+
 class EnemyBase: TowerBase
     def finalize
         for action in actionLists
@@ -845,6 +868,8 @@ class EnemyBase: TowerBase
         tempNode->addAction(seq)
         level->addChild(tempNode)
         tempNode->addAction(new Explosion(5.0f, float2(x + 60.0f, y - 150.0f), 80.0f, 150))
+
+        getSoundPool()->playEffect(EXPLOSION_SOUND)
 
 /*
 =======================================================================================
@@ -1334,6 +1359,8 @@ class Army05Chibomb: Army
         level->addChild(tempNode)
         tempNode->addAction(new Explosion(1.2f, float2(x, y - 40.0f), 60.0f, 50))
 
+        getSoundPool()->playEffect(EXPLOSION_SOUND)
+
 class Army06Chileghot: Army
     def finalize
         for action in actionLists
@@ -1600,6 +1627,7 @@ class Egg01Fire: Egg
         level->addChild(tempNode)
         addAction(new Disappear())
         tempNode->addAction(new Eruption(1.5f, -250.0f, float2(x, y), 20.0f, 150.0f, 40))
+        getSoundPool()->playEffect(FIRE_SOUND)
 
 class Egg02Ice: Egg
     def finalize
@@ -1646,6 +1674,8 @@ class Egg02Ice: Egg
         addAction(new Disappear())
         tempNode->addAction(new Blizzard(2.0f, -250.0f, float2(x, y), 20.0f, 100.0f, 40))
 
+        getSoundPool()->playEffect(ICE_SOUND)
+
 class Egg03Seed: Egg
     def finalize
         for action in actionLists
@@ -1690,6 +1720,8 @@ class Egg03Seed: Egg
         level->addChild(tempNode)
         addAction(new Disappear())
         tempNode->addAction(new LeafStorm(2.0f, -350.0f, float2(x, y), 20.0f, 100.0f, 25))
+
+        getSoundPool()->playEffect(SEED_SOUND)
         
 /*
 =======================================================================================

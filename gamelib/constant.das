@@ -135,8 +135,28 @@ let shared public
     INSTRUCTION = "gamelib/assets/sprites/utils/instruction.png"
     INTRO = "gamelib/assets/sprites/utils/intro.png"
 
+    LEVEL_INFO_LAYER = "gamelib/assets/sprites/levelinfo/layer.png"
+
+    BUTTON_CLICKED_SOUND = "gamelib/assets/sound/button.mp3"
+    UNIT_CLICKED_SOUND = "gamelib/assets/sound/barunit.mp3"
+    UNIT_RECHARGED_SOUND = "gamelib/assets/sound/barunit_done.mp3"
+    DAMAGE_SOUND = "gamelib/assets/sound/damage.mp3"
+    EXPLOSION_SOUND = "gamelib/assets/sound/explosion.mp3"
+    FIRE_SOUND = "gamelib/assets/sound/fire.mp3"
+    ICE_SOUND = "gamelib/assets/sound/ice.mp3"
+    SEED_SOUND = "gamelib/assets/sound/seed.mp3"
+    VICTORY_SOUND = "gamelib/assets/sound/victory.mp3"
+
+    TITLE_MUSIC = "gamelib/assets/sound/disOrder_airtone.mp3"
+    GAME_MUSIC = "gamelib/assets/sound/spacedust_airtone.mp3"
+    ROUTER_MUSIC = "gamelib/assets/sound/reNovation_airtone.mp3"
+    AFTER_LEVEL_MUSIC = "gamelib/assets/sound/shimmer_airtone.mp3"
+
 def LEVEL_BUTTON(level: int): string
     return "gamelib/assets/sprites/gui/level/numberic{level}.png"
 
 def LEVEL_BUTTON_CLICKED(level: int): string
     return "gamelib/assets/sprites/gui/level/numberic{level}_clicked.png"
+
+def LEVEL_INFO(level: int; row: int): string
+    return "gamelib/assets/sprites/levelinfo/level{level}_{row}.png"

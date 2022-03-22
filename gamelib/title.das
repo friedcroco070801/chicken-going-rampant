@@ -7,7 +7,8 @@ require pentwin/application
 require level
 require constant
 require userdata
-require button
+require pentwin/button
+require pentwin/soundpool
 
 module title public
 
@@ -59,6 +60,7 @@ class TitleScene: Scene
 
         var clickOn: ClickOn? = new ClickOn(backdrop)
         clickOn->setOnMouseDown() <| @ [[=backdrop]]
+            getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
             getApplication()->changeSceneWithFading("router", 0.5f)
         addEvent(clickOn)
 
@@ -137,3 +139,5 @@ class TitleScene: Scene
         drawBackground()
         drawInstruction()
         drawRampantChicken()
+
+        getSoundPool()->playBackground(TITLE_MUSIC)

@@ -3,6 +3,7 @@ require pentwin/sprite
 require pentwin/node
 require constant
 require counter
+require pentwin/soundpool
 
 module unitbar public
 
@@ -85,6 +86,8 @@ class UnitBar: Sprite
                     seq->addAction(new FadeOut(0.1f))
                     flash->addAction(seq)
 
+                    getSoundPool()->playEffect(UNIT_RECHARGED_SOUND)
+
     def override draw(): void
         Sprite`draw(self)
         if !isDisabled
@@ -97,6 +100,7 @@ class UnitBar: Sprite
         timer = rechargeTime
         isRecharging = true
         fore->setOpacity(0.5f)
+        getSoundPool()->playEffect(UNIT_CLICKED_SOUND)
 
     def setDisabled(_disabled: bool): void
         isDisabled = _disabled

@@ -7,7 +7,9 @@ require pentwin/application
 require level
 require constant
 require userdata
-require button
+require pentwin/button
+require pentwin/soundpool
+require info
 
 module router public
 
@@ -61,11 +63,12 @@ class RouterScene: Scene
                 button->setPosition(250.0f + 156.0f * float(i - 1), 240.0f)
                 addChild(button)
                 button->setFunc() <| @ [[=i]]
-                    getApplication()->addScene("level", new LevelScene(i))
-                    getApplication()->changeSceneWithFading("level", 0.5f)
+                    getApplication()->addScene("info{i}", new InfoScene(i))
+                    getApplication()->changeSceneWithFading("info{i}", 0.5f)
                 var clickOn: ClickOn? = new ClickOn(button)
                 clickOn->setOnMouseDown() <| @ [[=button]]
                     button->onClick()
+                    getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
                 addEvent(clickOn)
             else
                 var button: Sprite? = new Sprite(LOCK_LEVEL)
@@ -83,8 +86,11 @@ class RouterScene: Scene
         var clickOn: ClickOn? = new ClickOn(back)
         clickOn->setOnMouseDown() <| @ [[=back]]
             back->onClick()
+            getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
         addEvent(clickOn)
 
     def override initialize(): void
         drawBackground()
         drawLevelButtons()
+
+        getSoundPool()->playBackground(ROUTER_MUSIC)
