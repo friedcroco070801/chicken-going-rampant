@@ -49,6 +49,10 @@ class InfoScene: Scene
 
         if level == 1
             char1 = new Sprite(WORKER, float4(0.0f, 0.0f, 60.0f, 60.0f))
+            var anim: Animation? = new Animation()
+            for i in range(0, 8)
+                anim->addFrame(new AnimFrame(WORKER, 0.1f, float4(60.0f * float(i), 0.0f, 60.0f, 60.0f)))
+            char1->addAction(new RepeatForever(anim))
             var temp = createCharacter(null, 001)
             temp->idle()
             char2 = temp

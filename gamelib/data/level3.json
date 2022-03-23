@@ -1,18 +1,36 @@
 {
-    "enemyBaseHP": 50,
-    "reward": 101,
+    "enemyBaseHP": 150,
+    "reward": 103,
     "enemies": [
         {
-            "startTime": 100,
+            "startTime": 500,
             "interval": 400,
-            "loop": 5,
+            "loop": 1,
+            "code": 203
+        },
+        {
+            "startTime": 1500,
+            "interval": 700,
+            "loop": 3,
             "code": 201
         },
         {
-            "startTime": 900,
-            "interval": 200,
-            "loop": 2,
+            "startTime": 2000,
+            "interval": 800,
+            "loop": 9999,
             "code": 202
+        },
+        {
+            "startTime": 3600,
+            "interval": 300,
+            "loop": 9999,
+            "code": 201
+        },
+        {
+            "startTime": 6000,
+            "interval": 1500,
+            "loop": 9999,
+            "code": 203
         }
     ]
 }

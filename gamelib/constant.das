@@ -15,8 +15,8 @@ let shared public
     JUMP_DIE_INTERVAL = 1.0f
 
 var public
-    COST_TABLE <- {{1 => 100; 2 => 200; 3 => 300; 4 => 400; 5 => 9999}}
-    WORKING_SPEED <- {{1 => 2; 2 => 4; 3 => 7; 4 => 10; 5 => 15}}
+    COST_TABLE <- {{1 => 200; 2 => 500; 3 => 1000; 4 => 1500; 5 => 9999}}
+    WORKING_SPEED <- {{1 => 2; 2 => 4; 3 => 6; 4 => 9; 5 => 12}}
 
 enum public CharacterCode
     NONE = -1
@@ -136,6 +136,10 @@ let shared public
     INTRO = "gamelib/assets/sprites/utils/intro.png"
 
     LEVEL_INFO_LAYER = "gamelib/assets/sprites/levelinfo/layer.png"
+
+    BUTTON_CREDITS = "gamelib/assets/sprites/gui/credit.png"
+    BUTTON_CREDITS_CLICKED = "gamelib/assets/sprites/gui/credit_clicked.png"
+    CREDIT = "gamelib/assets/sprites/utils/credits.png"
 
     BUTTON_CLICKED_SOUND = "gamelib/assets/sound/button.mp3"
     UNIT_CLICKED_SOUND = "gamelib/assets/sound/barunit.mp3"

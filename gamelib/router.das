@@ -10,6 +10,7 @@ require userdata
 require pentwin/button
 require pentwin/soundpool
 require info
+require credits
 
 module router public
 
@@ -86,6 +87,19 @@ class RouterScene: Scene
         var clickOn: ClickOn? = new ClickOn(back)
         clickOn->setOnMouseDown() <| @ [[=back]]
             back->onClick()
+            getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
+        addEvent(clickOn)
+
+        var credit: Button? = new Button(BUTTON_CREDITS, BUTTON_CREDITS_CLICKED)
+        credit->setAnchor(0.0f, 1.0f)
+        credit->setPosition(20.0f, 720.0f - 20.0f)
+        addChild(credit)
+        credit->setFunc() <| @ [[=i]]
+            // getApplication()->addScene("level", new LevelScene(1))
+            getApplication()->changeSceneWithFading("credit", 0.5f)
+        clickOn = new ClickOn(credit)
+        clickOn->setOnMouseDown() <| @ [[=credit]]
+            credit->onClick()
             getSoundPool()->playEffect(BUTTON_CLICKED_SOUND)
         addEvent(clickOn)
 

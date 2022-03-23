@@ -8,6 +8,7 @@ require gamelib/pentwin/soundpool
 require gamelib/constant
 require gamelib/userdata
 require gamelib/info
+require gamelib/credits
 
 def preload()
     preloadImage(BACKDROP)
@@ -80,6 +81,9 @@ def preload()
     preloadImage(INSTRUCTION)
     preloadImage(INTRO)
     preloadImage(LEVEL_INFO_LAYER)
+    preloadImage(BUTTON_CREDITS)
+    preloadImage(BUTTON_CREDITS_CLICKED)
+    preloadImage(CREDIT)
     for i in range(1, 7)
         preloadImage(LEVEL_BUTTON(i))
         preloadImage(LEVEL_BUTTON_CLICKED(i))
@@ -114,6 +118,9 @@ def initialize()
     getApplication() = new Application("intro", new IntroScene())
     getApplication()->addScene("title", new TitleScene())
     getApplication()->addScene("router", new RouterScene())
+    getApplication()->addScene("credit", new CreditScene())
+
+    getSoundPool()->setBackgroundVolume(0.3f)
 
 [export]
 def act(dt: float)

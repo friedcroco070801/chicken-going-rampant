@@ -3,16 +3,22 @@
     "reward": 101,
     "enemies": [
         {
-            "startTime": 100,
-            "interval": 400,
-            "loop": 5,
+            "startTime": 500,
+            "interval": 1000,
+            "loop": 1,
             "code": 201
         },
         {
-            "startTime": 900,
-            "interval": 200,
+            "startTime": 1500,
+            "interval": 750,
             "loop": 2,
-            "code": 202
+            "code": 201
+        },
+        {
+            "startTime": 3000,
+            "interval": 500,
+            "loop": 9999,
+            "code": 201
         }
     ]
 }

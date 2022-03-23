@@ -470,7 +470,7 @@ class LevelScene: Scene
                                 var jump2: JumpBy? = new JumpBy(float2(0.0f, -500.0f), -250.0f, 0.6f)
                                 text->addAction(jump2)
 
-                                if data.level == getUserData().level
+                                if data.level == getUserData().level && data.level < MAX_LEVEL
                                     var nextLevel: Button? = new Button(BUTTON_NEXTLEVEL, BUTTON_NEXTLEVEL_CLICKED)
                                     nextLevel->setAnchor(0.5f, 0.5f)
                                     nextLevel->setPosition(center.x + 105.0f, center.y + 30.0f + 500.0f)
@@ -488,7 +488,7 @@ class LevelScene: Scene
 
                                 var mainmenu: Button? = new Button(BUTTON_MAINMENU, BUTTON_MAINMENU_CLICKED)
                                 mainmenu->setAnchor(0.5f, 0.5f)
-                                if data.level == getUserData().level
+                                if data.level == getUserData().level && data.level < MAX_LEVEL
                                     mainmenu->setPosition(center.x - 105.0f, center.y + 30.0f + 500.0f)
                                 else
                                     mainmenu->setPosition(center.x, center.y + 30.0f + 500.0f)
@@ -1046,7 +1046,7 @@ class Army01Chica: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY01, float4(0.0f, 0.0f, 60.0f, 80.0f))
         setAnchor(1.0f, 1.0f)
-        Army`Army(self, _level, CharacterCode A01_NORMAL, AttackType SINGLE, 10, 40.0f, 1, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A01_NORMAL, AttackType SINGLE, 10, 30.0f, 1, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
 
         // Animation
         // Move
@@ -1109,7 +1109,7 @@ class Army02Chiburn: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY02, float4(0.0f, 0.0f, 60.0f, 80.0f))
         setAnchor(1.0f, 1.0f)
-        Army`Army(self, _level, CharacterCode A02_FIRE, AttackType SINGLE, 10, 60.0f, 1, 0.5f, 5.0f, -30.0f, 5.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A02_FIRE, AttackType SINGLE, 10, 40.0f, 2, 0.67f, 5.0f, -30.0f, 5.0f, -30.0f)
 
         // Animation
         // Move
@@ -1176,7 +1176,7 @@ class Army03Chirystal: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY03, float4(0.0f, 0.0f, 60.0f, 100.0f))
         setAnchor(1.0f, 1.0f)
-        Army`Army(self, _level, CharacterCode A03_ICE, AttackType SINGLE, 30, 20.0f, 0, 0.5f, 0.0f, -30.0f, 0.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A03_ICE, AttackType SINGLE, 30, 25.0f, 1, 4.0f, 0.0f, -30.0f, 0.0f, -30.0f)
 
         // Animation
         // Move
@@ -1243,7 +1243,7 @@ class Army04Chileg: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY04, float4(0.0f, 0.0f, 240.0f, 240.0f))
         setAnchor(0.25f, 1.0f)
-        Army`Army(self, _level, CharacterCode A04_TREE, AttackType AREA, 15, 30.0f, 2, 4.0f, 170.0f, -30.0f, 180.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A04_TREE, AttackType AREA, 10, 30.0f, 1, 2.0f, 160.0f, -30.0f, 180.0f, -30.0f)
 
         // Animation
         // Move
@@ -1310,7 +1310,7 @@ class Army05Chibomb: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY05, float4(0.0f, 0.0f, 60.0f, 80.0f))
         setAnchor(1.0f, 1.0f)
-        Army`Army(self, _level, CharacterCode A05_BOMB, AttackType AREA, 1, 120.0f, 50, 0.5f, 0.0f, -30.0f, 60.0f, -60.0f)
+        Army`Army(self, _level, CharacterCode A05_BOMB, AttackType AREA, 1, 100.0f, 50, 0.5f, 0.0f, -30.0f, 60.0f, -60.0f)
 
         // Animation
         // Move
@@ -1383,7 +1383,7 @@ class Army06Chileghot: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY06, float4(0.0f, 0.0f, 240.0f, 240.0f))
         setAnchor(0.25f, 1.0f)
-        Army`Army(self, _level, CharacterCode A06_FIRETREE, AttackType AREA, 15, 40.0f, 4, 3.0f, 170.0f, -30.0f, 180.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A06_FIRETREE, AttackType AREA, 10, 35.0f, 1, 1.4f, 160.0f, -30.0f, 180.0f, -30.0f)
 
         // Animation
         // Move
@@ -1450,7 +1450,7 @@ class Army07Chilegcold: Army
         // Initialize sprite
         Sprite`Sprite(self, ARMY07, float4(0.0f, 0.0f, 240.0f, 240.0f))
         setAnchor(0.25f, 1.0f)
-        Army`Army(self, _level, CharacterCode A07_ICETREE, AttackType AREA, 60, 20.0f, 0, 3.0f, 0.0f, -30.0f, 0.0f, -30.0f)
+        Army`Army(self, _level, CharacterCode A07_ICETREE, AttackType SINGLE, 120, 20.0f, 1, 4.0f, 0.0f, -30.0f, 0.0f, -30.0f)
 
         // Animation
         // Move
@@ -1604,7 +1604,7 @@ class Egg01Fire: Egg
     def Egg01Fire(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, EGG01, float4(0.0f, 0.0f, 40.0f, 60.0f))
-        Egg`Egg(self, _level, CharacterCode B01_FIRE, 150.0f)
+        Egg`Egg(self, _level, CharacterCode B01_FIRE, 100.0f)
 
         // Correspondence table
         changeTable <- {{ 001 => 002; 003 => 001; 004 => 006; 007 => 004 }}
@@ -1697,7 +1697,7 @@ class Egg03Seed: Egg
     def Egg03Seed(_level: LevelScene?)
         // Initialize sprite
         Sprite`Sprite(self, EGG03, float4(0.0f, 0.0f, 40.0f, 60.0f))
-        Egg`Egg(self, _level, CharacterCode B03_TREE, 120.0f)
+        Egg`Egg(self, _level, CharacterCode B03_TREE, 90.0f)
 
         // Correspondence table
         changeTable <- {{ 001 => 004; 002 => 006; 003 => 007}}
@@ -1898,7 +1898,7 @@ class Enemy01Mouse: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY01, float4(0.0f, 0.0f, 60.0f, 80.0f))
         setAnchor(0.0f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E01_NORMAL, AttackType SINGLE, 10, 40.0f, 1, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E01_NORMAL, AttackType SINGLE, 10, 30.0f, 1, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
 
         // Animation
         // Move
@@ -1961,7 +1961,7 @@ class Enemy02Moucat: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY02, float4(0.0f, 0.0f, 76.0f, 80.0f))
         setAnchor(0.0f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E02_CAT, AttackType SINGLE, 20, 40.0f, 1, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E02_CAT, AttackType SINGLE, 20, 30.0f, 2, 1.0f, 5.0f, -30.0f, 5.0f, -30.0f)
 
         // Animation
         // Move
@@ -2024,7 +2024,7 @@ class Enemy03Moubird: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY03, float4(0.0f, 0.0f, 76.0f, 136.0f))
         setAnchor(0.289f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E03_BIRD, AttackType SINGLE, 15, 60.0f, 2, 1.0f, 0.0f, -30.0f, 0.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E03_BIRD, AttackType AREA, 20, 40.0f, 10, 4.5f, 0.0f, -30.0f, 4.0f, -30.0f)
 
         // Animation
         // Move
@@ -2091,7 +2091,7 @@ class Enemy04Moucroco: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY04, float4(0.0f, 0.0f, 84.0f, 80.0f))
         setAnchor(0.1f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E04_CROCO, AttackType AREA, 20, 20.0f, 5, 2.0f, 0.0f, -30.0f, 0.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E04_CROCO, AttackType AREA, 50, 15.0f, 30, 0.5f, 0.0f, -30.0f, 1.0f, -30.0f)
 
         // Animation
         // Move
@@ -2158,7 +2158,7 @@ class Enemy05Mouphant: Enemy
         // Initialize sprite
         Sprite`Sprite(self, ENEMY05, float4(0.0f, 0.0f, 360.0f, 180.0f))
         setAnchor(0.334f, 1.0f)
-        Enemy`Enemy(self, _level, CharacterCode E05_ELEPHANT, AttackType AREA, 150, 200.0f, 30, 5.0f, 120.0f, -30.0f, 120.0f, -30.0f)
+        Enemy`Enemy(self, _level, CharacterCode E05_ELEPHANT, AttackType AREA, 150, 10.0f, 30, 4.0f, 120.0f, -30.0f, 120.0f, -30.0f)
 
         // Animation
         // Move
