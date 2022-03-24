@@ -1,5 +1,5 @@
 # Chicken Going Rampant
-A game made in under 10 days for Gaijin Jam #2.
+A game made for [Gaijin Jam #2](https://itch.io/jam/gaijin-jam-2).
 
 ## Technologies
 The game is written in [daScript](https://dascript.org/), a high performance scripting language and run on [dasbox](https://github.com/imp5imp5/dasbox). Both are technologies from Gaijin Entertainment.

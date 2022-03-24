@@ -16,13 +16,13 @@
         },
         {
             "startTime": 2000,
-            "interval": 800,
+            "interval": 1200,
             "loop": 9999,
             "code": 202
         },
         {
             "startTime": 3600,
-            "interval": 300,
+            "interval": 800,
             "loop": 9999,
             "code": 201
         },

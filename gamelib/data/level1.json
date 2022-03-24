@@ -16,7 +16,7 @@
         },
         {
             "startTime": 3000,
-            "interval": 500,
+            "interval": 600,
             "loop": 9999,
             "code": 201
         }
